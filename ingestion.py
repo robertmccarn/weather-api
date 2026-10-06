@@ -12,18 +12,28 @@ logging.basicConfig(
 )
 
 
-database = WeatherDatabase("weather.db")
-client = OpenMeteoClient()
+def run_ingestion(
+    database_path: str = "weather.db",
+    locations=None,
+):
+    selected_locations = LOCATIONS if locations is None else locations
+
+    database = WeatherDatabase(database_path)
+    client = OpenMeteoClient()
+
+    try:
+        database.create_tables()
+
+        ingestion = WeatherIngestion(
+            database,
+            client,
+            selected_locations,
+        )
+
+        return ingestion.run()
+    finally:
+        database.close()
 
 
-database.create_tables()
-
-ingestion = WeatherIngestion(
-    database,
-    client,
-    LOCATIONS,
-)
-
-ingestion.run()
-
-database.close()
+if __name__ == "__main__":
+    run_ingestion()
