@@ -86,6 +86,7 @@ def forecast(
                     "apparent_temperature", [None] * len(hourly["time"])
                 )[index],
                 "precipitation": hourly["precipitation"][index],
+                "precipitation_probability": hourly.get("precipitation_probability", [None] * len(hourly["time"]))[index],
                 "humidity": hourly["relative_humidity_2m"][index],
                 "weather_code": hourly.get(
                     "weather_code", [None] * len(hourly["time"])
