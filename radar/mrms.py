@@ -62,9 +62,11 @@ class MRMSClient:
             )
 
         params = {
-            "geometry": f'{{"x":{longitude},"y":{latitude}}}',
+            "geometry": (
+                f'{{"x":{longitude},"y":{latitude},'
+                '"spatialReference":{"wkid":4326}}}'
+            ),
             "geometryType": "esriGeometryPoint",
-            "geometrySR": "4326",
             "sampleCount": 1,
             "returnFirstValueOnly": "true",
             "interpolation": "RSP_NearestNeighbor",
