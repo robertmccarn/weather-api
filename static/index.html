@@ -184,24 +184,60 @@ return time.toISOString();
 function formatRadarTime(iso){
 return new Date(iso).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 }
-function updateRadarFrame(index){
-if(!radarFrames.length)return;
-const frame=radarFrames[index];
-if(!radarLayer){
-radarLayer=L.tileLayer.wms("https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi",{
+const RADAR_WMS_URL="https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi";
+let radarLayers=[null,null],radarActiveLayer=0,radarTransitionToken=0;
+function createRadarLayer(){
+return L.tileLayer.wms(RADAR_WMS_URL,{
 layers:"nexrad-n0r-wmst",
 format:"image/png",
 transparent:true,
-opacity:radarOpacity,
+opacity:0,
 version:"1.1.1",
-attribution:"Radar: Iowa Environmental Mesonet / NWS NEXRAD"
-}).addTo(map);
+attribution:"Radar: Iowa Environmental Mesonet / NWS NEXRAD",
+zIndex:450
+});
 }
-if(radarTransitionTimer){clearTimeout(radarTransitionTimer);radarTransitionTimer=null;}
-radarLayer.setOpacity(0);
-radarLayer.setParams({time:frame});
-radarTransitionTimer=setTimeout(()=>{if(radarLayer){radarLayer.setOpacity(radarOpacity);}},40);
-document.getElementById("radar-time").textContent=formatRadarTime(frame)+" UTC";
+function ensureRadarLayers(){
+if(radarLayers[0])return;
+radarLayers=[createRadarLayer(),createRadarLayer()];
+radarLayers[0].addTo(map);
+radarLayers[1].addTo(map);
+}
+function animateRadarTransition(targetOpacity){
+const outgoing=radarLayers[radarActiveLayer];
+const incoming=radarLayers[1-radarActiveLayer];
+const start=performance.now();
+const duration=450;
+function step(now){
+const progress=Math.min(1,(now-start)/duration);
+const eased=1-Math.pow(1-progress,3);
+if(incoming)incoming.setOpacity(targetOpacity*eased);
+if(outgoing)outgoing.setOpacity(targetOpacity*(1-eased));
+if(progress<1)requestAnimationFrame(step);
+else if(outgoing)outgoing.setOpacity(0);
+}
+requestAnimationFrame(step);
+}
+function updateRadarFrame(index,animate=true){
+if(!radarFrames.length)return;
+const frame=radarFrames[index];
+ensureRadarLayers();
+const incomingIndex=1-radarActiveLayer;
+const incoming=radarLayers[incomingIndex];
+const outgoing=radarLayers[radarActiveLayer];
+radarTransitionToken++;
+const token=radarTransitionToken;
+incoming.setOpacity(0);
+incoming.setParams({time:frame});
+const showFrame=()=>{
+if(token!==radarTransitionToken)return;
+if(animate)animateRadarTransition(radarOpacity);
+else incoming.setOpacity(radarOpacity);
+radarActiveLayer=incomingIndex;
+};
+incoming.once("load",showFrame);
+setTimeout(showFrame,900);
+document.getElementById("radar-time").textContent=formatRadarTime(frame);
 document.getElementById("radar-slider").value=index;
 }
 function stopRadarPlayback(){
@@ -237,7 +273,7 @@ radarFrames=radarFrameTimes();
 document.getElementById("radar-timeline").style.display="block";
 credit.style.display="block";
 document.getElementById("radar-button").classList.add("route-active");
-updateRadarFrame(radarFrames.length-1);
+updateRadarFrame(radarFrames.length-1,false);
 }
 document.getElementById("search-button").addEventListener("click",searchLocations);
 document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocations();});
@@ -245,8 +281,8 @@ document.getElementById("locate-button").addEventListener("click",()=>{if(!navig
 document.getElementById("radar-button").addEventListener("click",toggleRadar);
 document.getElementById("route-button").addEventListener("click",()=>setRouteMode(!routeMode));
 document.getElementById("route-clear").addEventListener("click",clearRoute);
-document.getElementById("radar-play").addEventListener("click",startRadarPlayback);document.getElementById("radar-slider").addEventListener("input",e=>{stopRadarPlayback();updateRadarFrame(Number(e.target.value));});document.getElementById("radar-close").addEventListener("click",()=>{stopRadarPlayback();if(radarLayer){map.removeLayer(radarLayer);radarLayer=null;}document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");});
-document.getElementById("radar-opacity").addEventListener("input",e=>{radarOpacity=Number(e.target.value)/100;if(radarLayer)radarLayer.setOpacity(radarOpacity);});
+document.getElementById("radar-play").addEventListener("click",startRadarPlayback);document.getElementById("radar-slider").addEventListener("input",e=>{stopRadarPlayback();updateRadarFrame(Number(e.target.value),true);});document.getElementById("radar-close").addEventListener("click",()=>{stopRadarPlayback();if(radarLayer){radarTransitionToken++;radarLayers.forEach(layer=>{if(layer)map.removeLayer(layer);});radarLayers=[null,null];radarActiveLayer=0;radarLayer=null;}document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");});
+document.getElementById("radar-opacity").addEventListener("input",e=>{radarOpacity=Number(e.target.value)/100;radarLayers.forEach(layer=>{if(layer)layer.setOpacity(radarOpacity);});});
 document.getElementById("radar-opacity-down").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.max(20,Number(input.value)-5);input.dispatchEvent(new Event("input"));});
 document.getElementById("radar-opacity-up").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.min(80,Number(input.value)+5);input.dispatchEvent(new Event("input"));});
 document.getElementById("daily-tab").addEventListener("click",()=>{currentView="daily";document.getElementById("daily-tab").classList.add("active");document.getElementById("hourly-tab").classList.remove("active");renderForecast();});
