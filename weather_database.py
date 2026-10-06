@@ -120,3 +120,6 @@ class WeatherDatabase:
 
     def close(self):
         self.connection.close()
+
+    def rollback(self):
+        self.connection.rollback()

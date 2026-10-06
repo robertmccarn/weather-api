@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class WeatherIngestion:
     def __init__(self, database, client, locations):
         self.database = database
@@ -5,7 +10,21 @@ class WeatherIngestion:
         self.locations = locations
 
     def run(self):
+        logger.info("Starting weather ingestion")
+
         for location in self.locations:
+            try:
+                self._process_location(location)
+            except Exception:
+                logger.exception(
+                    "Failed to process %s",
+                    location["name"],
+                )
+
+        logger.info("Weather ingestion completed")
+
+    def _process_location(self, location):
+        try:
             self.database.add_location(
                 location["name"],
                 location["latitude"],
@@ -52,4 +71,12 @@ class WeatherIngestion:
 
             self.database.commit()
 
-            print(f"{location['name']}: {records_processed} records processed")
+            logger.info(
+                "%s: %d records processed",
+                location["name"],
+                records_processed,
+            )
+
+        except Exception:
+            self.database.rollback()
+            raise
