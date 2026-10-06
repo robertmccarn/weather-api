@@ -4,11 +4,13 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 
 from open_meteo import OpenMeteoClient
+from radar.mrms import MRMSClient
 from services.alert_service import AlertService
 from services.geocoding_service import GeocodingService
 from services.weather_service import WeatherService
 from services.routing_service import RoutingService
 from services.route_weather_service import RouteWeatherService
+from services.radar_service import RadarService
 
 
 app = FastAPI(title="Weather API")
@@ -19,6 +21,7 @@ geocoding_service = GeocodingService()
 alert_service = AlertService()
 routing_service = RoutingService()
 route_weather_service = RouteWeatherService(routing_service, weather_service)
+radar_service = RadarService(MRMSClient())
 
 
 @app.get("/")
@@ -131,6 +134,28 @@ def route_weather(
         raise HTTPException(
             status_code=502,
             detail="Unable to calculate route weather.",
+        ) from error
+
+
+@app.get("/api/radar/precipitation")
+def radar_precipitation(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+    product: str = Query(default="1hr"),
+):
+    try:
+        observation = radar_service.get_point_precipitation(
+            latitude,
+            longitude,
+            product,
+        )
+        return observation.to_dict()
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve radar precipitation.",
         ) from error
 
 
