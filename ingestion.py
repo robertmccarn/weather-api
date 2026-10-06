@@ -1,24 +1,15 @@
+import logging
+
+from config import LOCATIONS
 from open_meteo import OpenMeteoClient
 from weather_database import WeatherDatabase
 from weather_ingestion import WeatherIngestion
 
-locations = [
-    {
-        "name": "Spring, TX",
-        "latitude": 30.0799,
-        "longitude": -95.4172,
-    },
-    {
-        "name": "Houston, TX",
-        "latitude": 29.7604,
-        "longitude": -95.3698,
-    },
-    {
-        "name": "Dallas, TX",
-        "latitude": 32.7767,
-        "longitude": -96.7970,
-    },
-]
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
 
 
 database = WeatherDatabase("weather.db")
@@ -30,7 +21,7 @@ database.create_tables()
 ingestion = WeatherIngestion(
     database,
     client,
-    locations,
+    LOCATIONS,
 )
 
 ingestion.run()
