@@ -12,6 +12,7 @@ from services.routing_service import RoutingService
 from services.route_weather_service import RouteWeatherService
 from services.radar_service import RadarService
 from services.route_radar_service import RouteRadarService
+from services.nws_observation_service import NWSObservationService
 
 
 app = FastAPI(title="Weather API")
@@ -24,6 +25,7 @@ routing_service = RoutingService()
 route_weather_service = RouteWeatherService(routing_service, weather_service)
 radar_service = RadarService(MRMSClient())
 route_radar_service = RouteRadarService(routing_service, radar_service)
+nws_observation_service = NWSObservationService()
 
 
 @app.get("/")
@@ -208,6 +210,25 @@ def reverse_location(
         raise HTTPException(
             status_code=502,
             detail="Unable to identify that location.",
+        ) from error
+
+
+@app.get("/api/observations")
+def observations(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+):
+    try:
+        return nws_observation_service.get_observation(
+            latitude,
+            longitude,
+        ).to_dict()
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve current observation.",
         ) from error
 
 
