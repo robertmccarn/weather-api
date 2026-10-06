@@ -15,6 +15,11 @@ NOMINATIM_URL = "https://nominatim.openstreetmap.org"
 NOMINATIM_HEADERS = {
     "User-Agent": "weather-api/1.0 (educational project)"
 }
+NWS_URL = "https://api.weather.gov"
+NWS_HEADERS = {
+    "User-Agent": "weather-api/1.0 (educational project)",
+    "Accept": "application/geo+json",
+}
 _geocode_cache = {}
 _geocode_lock = threading.Lock()
 _last_geocode_request = 0.0
@@ -162,4 +167,38 @@ def reverse_location(
         raise HTTPException(
             status_code=502,
             detail="Unable to identify that location.",
+        ) from error
+
+
+@app.get("/api/alerts")
+def alerts(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+):
+    try:
+        response = requests.get(
+            f"{NWS_URL}/alerts/active",
+            params={"point": f"{latitude},{longitude}"},
+            headers=NWS_HEADERS,
+            timeout=10,
+        )
+        response.raise_for_status()
+        features = response.json().get("features", [])
+        return [
+            {
+                "id": feature.get("id"),
+                "event": feature.get("properties", {}).get("event"),
+                "severity": feature.get("properties", {}).get("severity"),
+                "urgency": feature.get("properties", {}).get("urgency"),
+                "headline": feature.get("properties", {}).get("headline"),
+                "description": feature.get("properties", {}).get("description"),
+                "expires": feature.get("properties", {}).get("expires"),
+                "area": feature.get("properties", {}).get("areaDesc"),
+            }
+            for feature in features
+        ]
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve weather alerts.",
         ) from error
