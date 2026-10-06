@@ -37,6 +37,37 @@ class WeatherDatabase:
 
         self.cursor.execute(
             """
+            CREATE TABLE IF NOT EXISTS radar_frames (
+                radar_frame_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product TEXT NOT NULL,
+                observed_at TEXT NOT NULL,
+                source TEXT NOT NULL,
+                UNIQUE (product, observed_at, source)
+            )
+            """
+        )
+
+        self.cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS radar_observations (
+                radar_observation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                radar_frame_id INTEGER NOT NULL,
+                latitude REAL NOT NULL,
+                longitude REAL NOT NULL,
+                precipitation_inches REAL,
+                FOREIGN KEY (radar_frame_id)
+                    REFERENCES radar_frames(radar_frame_id),
+                UNIQUE (
+                    radar_frame_id,
+                    latitude,
+                    longitude
+                )
+            )
+            """
+        )
+
+        self.cursor.execute(
+            """
             CREATE UNIQUE INDEX IF NOT EXISTS idx_locations_name
             ON locations(name)
             """
@@ -46,6 +77,13 @@ class WeatherDatabase:
             """
             CREATE INDEX IF NOT EXISTS idx_weather_location_timestamp
             ON weather(location_id, timestamp)
+            """
+        )
+
+        self.cursor.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_radar_observations_frame
+            ON radar_observations(radar_frame_id)
             """
         )
 
@@ -129,6 +167,73 @@ class WeatherDatabase:
                 humidity,
             ),
         )
+
+    def save_radar_observation(
+        self,
+        latitude,
+        longitude,
+        precipitation_inches,
+        product,
+        observed_at,
+        source="NOAA MRMS",
+    ):
+        self.cursor.execute(
+            """
+            INSERT INTO radar_frames (
+                product,
+                observed_at,
+                source
+            )
+            VALUES (?, ?, ?)
+            ON CONFLICT(product, observed_at, source)
+            DO NOTHING
+            """,
+            (product, observed_at, source),
+        )
+
+        self.cursor.execute(
+            """
+            SELECT radar_frame_id
+            FROM radar_frames
+            WHERE product = ?
+              AND observed_at = ?
+              AND source = ?
+            """,
+            (product, observed_at, source),
+        )
+
+        frame = self.cursor.fetchone()
+        if frame is None:
+            raise ValueError("Unable to create or retrieve radar frame.")
+
+        radar_frame_id = frame[0]
+
+        self.cursor.execute(
+            """
+            INSERT INTO radar_observations (
+                radar_frame_id,
+                latitude,
+                longitude,
+                precipitation_inches
+            )
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(
+                radar_frame_id,
+                latitude,
+                longitude
+            )
+            DO UPDATE SET
+                precipitation_inches = excluded.precipitation_inches
+            """,
+            (
+                radar_frame_id,
+                latitude,
+                longitude,
+                precipitation_inches,
+            ),
+        )
+
+        return radar_frame_id
 
     def commit(self):
         self.connection.commit()
