@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
+import time
 
 import requests
 
@@ -10,11 +11,19 @@ class HRRRFutureRadarService:
         "hrrr/refd_1080.json"
     )
 
-    def __init__(self, timeout: int = 10):
+    def __init__(self, timeout: int = 10, cache_seconds: int = 600):
         self.timeout = timeout
+        self.cache_seconds = cache_seconds
+        self.session = requests.Session()
+        self._model_init_cache = None
 
     def get_model_init(self) -> datetime:
-        response = requests.get(self.METADATA_URL, timeout=self.timeout)
+        if self._model_init_cache:
+            cached_at, cached_value = self._model_init_cache
+            if time.monotonic() - cached_at < self.cache_seconds:
+                return cached_value
+
+        response = self.session.get(self.METADATA_URL, timeout=self.timeout)
         response.raise_for_status()
         payload: dict[str, Any] = response.json()
 
@@ -29,7 +38,9 @@ class HRRRFutureRadarService:
         model_init = datetime.fromisoformat(text)
         if model_init.tzinfo is None:
             model_init = model_init.replace(tzinfo=timezone.utc)
-        return model_init.astimezone(timezone.utc)
+        model_init = model_init.astimezone(timezone.utc)
+        self._model_init_cache = (time.monotonic(), model_init)
+        return model_init
 
     def get_next_six_hours(self) -> dict[str, Any]:
         model_init = self.get_model_init()
