@@ -14,7 +14,7 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
 .brand{display:flex;align-items:center;gap:10px;min-width:155px}.brand-mark{width:25px;height:25px;border-radius:7px;background:linear-gradient(135deg,#fff,#dbeafe);color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.2)}.brand h1{margin:0;font-size:18px;letter-spacing:-.02em}
 .main-nav{display:flex;align-items:stretch;height:100%;gap:2px}.nav-item{background:transparent;color:#cbd5e1;border:0;box-shadow:none;border-radius:0;padding:0 13px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}.nav-item.active{color:#fff;background:rgba(255,255,255,.1);box-shadow:inset 0 -2px 0 #60a5fa}
 .nav-spacer{flex:1}.theme-toggle{width:38px;height:20px;border-radius:999px;background:#8793a4;box-shadow:none;padding:2px;position:relative}.theme-toggle::after{content:"";display:block;width:16px;height:16px;background:#fff;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.25)}
-main{display:grid;grid-template-columns:minmax(0,1fr) clamp(310px,29vw,370px);width:100vw;height:calc(100vh - 52px);overflow:hidden}
+main{display:grid;grid-template-columns:minmax(0,1fr) clamp(330px,29vw,380px);width:100vw;height:calc(100vh - 52px);overflow:hidden}
 .map-wrap{position:relative;min-width:0;min-height:0;background:#dce7f0}#map{height:100%;width:100%}.leaflet-top.leaflet-left{top:52px}
 .map-controls{position:absolute;z-index:1000;top:12px;left:14px;right:14px;display:flex;gap:7px;align-items:center;max-width:720px;flex-wrap:wrap}
 .search-box{flex:1 1 320px;display:flex;background:#fff;border:1px solid #cbd5e1;border-radius:7px;overflow:hidden;min-width:220px;box-shadow:0 3px 12px rgba(15,23,42,.16)}
@@ -36,7 +36,7 @@ button{border:1px solid #cbd5e1;border-radius:7px;padding:9px 11px;cursor:pointe
 #chart-wrap{height:112px;margin:0 3px 5px;position:relative;background:linear-gradient(180deg,#f8fafc,#eef3f8);border-radius:8px;overflow:hidden}#forecast{min-height:0;overflow-y:auto;padding:0 3px 12px}.day-header{font-weight:800;margin:10px 4px 5px;color:#172033;position:sticky;top:0;background:var(--panel);padding:3px 0;z-index:2;font-size:10px}
 .hour{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;gap:6px;padding:7px 4px;border-bottom:1px solid #e1e7ee;transition:background .15s}.hour:hover,.hour.chart-highlight{background:#edf4ff}.weather-icon{font-size:17px;text-align:center}.hour-time{font-weight:750;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hour-detail{color:#6b7788;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hour-temp{font-size:14px;font-weight:850;text-align:right;color:#111827}.hour.peak{background:#f8fafc}.hour.peak .hour-temp{color:#1d4ed8}
 .daily{display:grid;gap:3px}.daily-card{display:grid;grid-template-columns:56px 28px 1fr auto;align-items:center;gap:5px;padding:7px 4px;border-bottom:1px solid #e1e7ee;cursor:pointer}.daily-card:hover{background:#fff}.daily-date{font-weight:750;font-size:10px}.daily-range{font-weight:800;font-size:11px}.daily-detail{color:#64748b;font-size:9px}.temp-high{color:#172033}.temp-low{color:#64748b}.condition-pill{display:inline-block;padding:1px 5px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:8px;font-weight:700;margin-top:2px}.daily-expanded{grid-column:1/-1;padding:7px 9px;color:#475569;font-size:9px;background:#f8fafc;border-radius:6px}
-.radar-timeline{position:absolute;z-index:1000;left:50%;transform:translateX(-50%);bottom:13px;width:min(430px,calc(100% - 310px));min-width:320px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:8px 12px 9px;border:1px solid rgba(148,163,184,.5);border-radius:9px;box-shadow:0 8px 24px rgba(15,23,42,.2);display:none}.radar-timeline input{width:100%;min-height:18px}.radar-buttons{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;color:#475569}.radar-buttons>div:first-child{display:flex;align-items:center;gap:5px}.radar-buttons button{padding:5px 7px;font-size:10px;min-width:27px;height:27px;box-shadow:none}.radar-buttons button:first-child{background:#172033;color:#fff;border-color:#172033}.radar-timeline input[type=range]{accent-color:#2563eb}.radar-range-labels{display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-top:-2px}.radar-opacity-label{font-size:8px;color:#7a8797;margin-top:2px}.radar-legend{position:absolute;z-index:1000;left:10px;bottom:11px;width:130px;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);padding:7px 8px;border:1px solid rgba(148,163,184,.45);border-radius:7px;box-shadow:0 5px 15px rgba(15,23,42,.16);display:none}.radar-legend-title{font-size:9px;font-weight:800;color:#3b4657;margin-bottom:4px}.radar-legend-bar{height:7px;border-radius:999px;background:linear-gradient(90deg,#16a34a 0%,#84cc16 22%,#facc15 42%,#fb923c 60%,#ef4444 76%,#dc2626 86%,#a855f7 100%)}.radar-legend-labels{display:flex;justify-content:space-between;color:#64748b;font-size:7px;margin-top:2px}.radar-credit{position:absolute;z-index:1000;right:7px;bottom:3px;background:rgba(255,255,255,.78);padding:2px 4px;font-size:8px;display:none;color:#64748b}
+.radar-timeline{position:absolute;z-index:1000;left:50%;transform:translateX(-50%);bottom:13px;width:min(430px,calc(100% - 310px));min-width:320px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:8px 12px 9px;border:1px solid rgba(148,163,184,.5);border-radius:9px;box-shadow:0 8px 24px rgba(15,23,42,.2);display:none}.radar-timeline input{width:100%;min-height:18px}.radar-buttons{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;color:#475569}.radar-buttons>div:first-child{display:flex;align-items:center;gap:5px}.radar-time{color:#64748b;font-size:8px;font-weight:700;margin-left:3px}.radar-mode{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin:4px 2px 0;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.radar-mode .observed{color:#2563eb}.radar-mode .now{color:#111827;text-align:center}.radar-mode .forecast{color:#7c3aed;text-align:right}.radar-buttons button{padding:5px 7px;font-size:10px;min-width:27px;height:27px;box-shadow:none}.radar-buttons button:first-child{background:#172033;color:#fff;border-color:#172033}.radar-timeline input[type=range]{accent-color:#2563eb}.radar-range-labels{display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-top:-2px}.radar-opacity-label{font-size:8px;color:#7a8797;margin-top:2px}.radar-legend{position:absolute;z-index:1000;left:10px;bottom:11px;width:130px;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);padding:7px 8px;border:1px solid rgba(148,163,184,.45);border-radius:7px;box-shadow:0 5px 15px rgba(15,23,42,.16);display:none}.radar-legend-title{font-size:9px;font-weight:800;color:#3b4657;margin-bottom:3px}.radar-legend-subtitle{font-size:7px;color:#64748b;margin-bottom:3px}.radar-forecast-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:5px}.radar-forecast-legend span{font-size:7px;text-align:center;padding:2px 1px;border-radius:3px;color:#334155;background:#f1f5f9}.radar-forecast-legend .snow{background:#c8edf2}.radar-forecast-legend .mix{background:#f4c4d8}.radar-forecast-legend .ice{background:#d8ccf5}.radar-forecast-legend .rain{background:#b7efb5}.radar-legend-bar{height:7px;border-radius:999px;background:linear-gradient(90deg,#16a34a 0%,#84cc16 22%,#facc15 42%,#fb923c 60%,#ef4444 76%,#dc2626 86%,#a855f7 100%)}.radar-legend-labels{display:flex;justify-content:space-between;color:#64748b;font-size:7px;margin-top:2px}.radar-credit{position:absolute;z-index:1000;right:7px;bottom:3px;background:rgba(255,255,255,.78);padding:2px 4px;font-size:8px;display:none;color:#64748b}
 .loading-skeleton{height:36px;border-radius:7px;background:linear-gradient(90deg,#edf2f7 25%,#dfe7ef 50%,#edf2f7 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;margin-bottom:6px}@keyframes shimmer{to{background-position:-200% 0}}
 .custom-map-marker{background:transparent;border:0}.marker-pin{position:absolute;top:4px;left:4px;width:12px;height:12px;background:#2563eb;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.28);z-index:2}.marker-pulse{position:absolute;top:0;left:0;width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.30);animation:marker-pulse 2s infinite}.custom-map-marker.route-marker .marker-pulse{animation:none}@keyframes marker-pulse{0%{transform:scale(.8);opacity:1}100%{transform:scale(2.4);opacity:0}}
 .leaflet-popup-content-wrapper{border-radius:9px}.leaflet-popup-content{margin:10px 12px}.weather-popup{min-width:145px}.weather-popup .popup-temp{font-size:18px;font-weight:850;margin:2px 0}
@@ -56,7 +56,7 @@ button{border:1px solid #cbd5e1;border-radius:7px;padding:9px 11px;cursor:pointe
 <div class="nav-spacer"></div><button class="theme-toggle" aria-label="Theme"></button>
 </header>
 <main>
-<div class="map-wrap"><div id="map"></div><div class="map-controls"><div class="search-box"><input id="search-input" type="search" placeholder="Search place..."><button id="search-button">Search</button></div><button id="locate-button" title="Use my location">My Location</button><button id="radar-button" title="Toggle radar">Radar</button><button id="share-button" title="Copy or share this forecast">Share</button><div id="search-results" class="search-results"></div></div><div id="route-controls" class="route-controls"><strong>Route weather planner</strong><span id="route-instructions">Click a starting point on the map.</span><div class="route-actions"><button id="route-clear">Clear</button><button id="route-button" class="route-active">Planner</button></div></div><div id="route-summary" class="route-summary"></div><div id="radar-credit" class="radar-credit">Radar: NOAA MRMS / IEM</div><div id="radar-legend" class="radar-legend"><div class="radar-legend-title">MRMS Radar</div><div class="radar-legend-bar" aria-label="NEXRAD reflectivity in dBZ"></div><div class="radar-legend-labels"><span>20</span><span>30</span><span>40</span><span>50</span><span>60+</span></div><div style="font-size:7px;color:#7a8797;margin-top:2px">REFLECTIVITY · dBZ</div></div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><div><button id="radar-play" title="Play radar animation">▶</button><strong id="radar-time">Radar</strong></div><div><button id="radar-opacity-down" title="Decrease radar opacity">−</button><button id="radar-opacity-up" title="Increase radar opacity">+</button><button id="radar-close">Close</button></div></div><input id="radar-slider" type="range" min="0" max="11" value="11" step="1" aria-label="Radar time"><div class="radar-range-labels"><span>24 min ago</span><span>Now</span></div><div class="radar-opacity-label">Radar opacity</div><input id="radar-opacity" type="range" min="30" max="100" value="90" step="5" aria-label="Radar opacity"></div></div>
+<div class="map-wrap"><div id="map"></div><div class="map-controls"><div class="search-box"><input id="search-input" type="search" placeholder="Search place..."><button id="search-button">Search</button></div><button id="locate-button" title="Use my location">My Location</button><button id="radar-button" title="Toggle radar">Radar</button><button id="share-button" title="Copy or share this forecast">Share</button><div id="search-results" class="search-results"></div></div><div id="route-controls" class="route-controls"><strong>Route weather planner</strong><span id="route-instructions">Click a starting point on the map.</span><div class="route-actions"><button id="route-clear">Clear</button><button id="route-button" class="route-active">Planner</button></div></div><div id="route-summary" class="route-summary"></div><div id="radar-credit" class="radar-credit">Radar: NOAA MRMS / IEM</div><div id="radar-legend" class="radar-legend"><div class="radar-legend-title">High-Res 6-Hr Radar</div><div class="radar-legend-subtitle">Observed · MRMS reflectivity</div><div class="radar-legend-bar" aria-label="Observed reflectivity in dBZ"></div><div class="radar-legend-labels"><span>20</span><span>30</span><span>40</span><span>50</span><span>60+</span></div><div class="radar-forecast-legend"><span class="snow">Snow</span><span class="mix">Mix</span><span class="ice">Ice</span><span class="rain">Rain</span></div></div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><div><button id="radar-play" title="Play radar animation">▶</button><strong id="radar-time">Radar</strong></div><div><button id="radar-opacity-down" title="Decrease radar opacity">−</button><button id="radar-opacity-up" title="Increase radar opacity">+</button><button id="radar-close">Close</button></div></div><input id="radar-slider" type="range" min="0" max="11" value="11" step="1" aria-label="Radar time"><div class="radar-range-labels"><span>24 min ago</span><span>Now</span></div><div class="radar-opacity-label">Radar opacity</div><input id="radar-opacity" type="range" min="30" max="100" value="90" step="5" aria-label="Radar opacity"></div></div>
 <section class="panel">
 <div class="location-title"><div><h2 id="location">Spring, TX</h2><div id="coordinates">30.0799, -95.4172</div><div class="location-sub" id="timezone">Forecast for local time</div></div></div>
 <div id="recent" class="recent"></div>
@@ -209,158 +209,179 @@ function renderRecent(){const el=document.getElementById("recent");el.innerHTML=
 function toggleDay(index,wrapper){if(expandedDay===index){expandedDay=null;renderForecast();return;}expandedDay=index;const day=currentForecast.daily[index],hours=currentForecast.hourly.filter(h=>h.time.slice(0,10)===day.date),detail=document.createElement("div");detail.className="daily-expanded";detail.innerHTML="<strong>"+formatDay(day.date)+"</strong> · Sunrise "+formatDateTime(day.sunrise)+" · Sunset "+formatDateTime(day.sunset)+" · Precipitation "+day.precipitation+" mm · "+hours.length+" hourly observations";wrapper.children[index].after(detail);}
 async function searchLocations(){const input=document.getElementById("search-input"),results=document.getElementById("search-results"),query=input.value.trim();if(query.length<2)return;results.style.display="block";results.innerHTML="<div class='search-result'>Searching...</div>";try{const r=await fetch("/api/geocode/search?q="+encodeURIComponent(query));if(!r.ok)throw 0;const places=await r.json();results.innerHTML="";if(!places.length){results.innerHTML="<div class='search-result'>No locations found.</div>";return;}places.forEach(place=>{const item=document.createElement("div");item.className="search-result";item.textContent=place.display_name;item.addEventListener("click",()=>{const lat=Number(place.lat),lon=Number(place.lon),name=place.display_name.split(",").slice(0,2).join(",");map.flyTo([lat,lon],10);marker.setLatLng([lat,lon]);results.style.display="none";loadForecast(lat,lon,name);});results.appendChild(item);});}catch{results.innerHTML="<div class='search-result'>Search unavailable.</div>";}}
 const RADAR_TILE_BASE="https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/";
-function radarFrameTimes(){
-const now=new Date();
-now.setUTCSeconds(0,0);
-const minute=Math.floor(now.getUTCMinutes()/2)*2;
-now.setUTCMinutes(minute);
-const anchor=new Date(now.getTime()-6*60*1000);
-return Array.from({length:13},(_,index)=>{
-const time=new Date(anchor.getTime()-(12-index)*2*60*1000);
-return time.toISOString();
-});
-}
+const radarState={sequence:[],playing:false,playToken:0,currentIndex:23,currentLayer:0,layers:[null,null],animationId:null};
 function radarTimestamp(iso){
 const d=new Date(iso);
 return d.getUTCFullYear().toString()+String(d.getUTCMonth()+1).padStart(2,"0")+String(d.getUTCDate()).padStart(2,"0")+String(d.getUTCHours()).padStart(2,"0")+String(d.getUTCMinutes()).padStart(2,"0");
 }
-function radarTileUrl(iso){
-return RADAR_TILE_BASE+"mrms::lcref-"+radarTimestamp(iso)+"/{z}/{x}/{y}.png";
-}
 function formatRadarTime(iso){
 return new Date(iso).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 }
-function updateRadarLoadingState(){
-const loaded=radarLoaded.filter(Boolean).length;
-const label=document.getElementById("radar-time");
-const play=document.getElementById("radar-play");
-if(!radarLoadingComplete){
-label.textContent="Loading radar "+loaded+"/"+radarFrames.length+"…";
-play.disabled=true;
-play.style.opacity=".45";
-play.style.cursor="wait";
-}else{
-label.textContent=formatRadarTime(radarFrames[radarActiveLayer])+" local";
-play.disabled=false;
-play.style.opacity="1";
-play.style.cursor="pointer";
+function observedRadarFrames(){
+const now=new Date();
+now.setUTCSeconds(0,0);
+now.setUTCMinutes(Math.floor(now.getUTCMinutes()/5)*5);
+const latest=new Date(now.getTime()-5*60*1000);
+return Array.from({length:24},(_,index)=>{
+const time=new Date(latest.getTime()-(23-index)*5*60*1000);
+return {kind:"observed",time:time.toISOString(),label:formatRadarTime(time),tms:false,url:RADAR_TILE_BASE+"mrms::lcref-"+radarTimestamp(time)+"/{z}/{x}/{y}.png"};
+});
 }
+async function buildRadarSequence(){
+const observed=observedRadarFrames();
+let future=[];
+try{
+const response=await fetch("/api/radar/future");
+if(response.ok){
+const data=await response.json();
+future=data.frames.map(frame=>{
+const encodedInit=data.model_init_utc.replace(/[-:]/g,"").replace(".000","").slice(0,12);
+return {kind:"forecast",time:frame.valid_at,label:formatRadarTime(frame.valid_at),tms:true,url:RADAR_TILE_BASE+"hrrr::REFP-"+frame.layer+"-"+encodedInit+"/{z}/{x}/{y}.png"};
+});
+}
+}catch{}
+if(future.length<24){
+future=[];
+for(let i=1;i<=24;i++){
+const time=new Date(Date.now()+i*15*60*1000);
+future.push({kind:"forecast",time:time.toISOString(),label:formatRadarTime(time),tms:true,url:RADAR_TILE_BASE+"hrrr::REFP-F"+String(i*15).padStart(4,"0")+"-0/{z}/{x}/{y}.png"});
+}
+}
+radarState.sequence=[...observed,...future];
+radarState.currentIndex=observed.length-1;
+return radarState.sequence;
+}
+function setRadarTimeLabel(){
+const frame=radarState.sequence[radarState.currentIndex];
+const label=document.getElementById("radar-time");
+if(!frame){label.textContent="Radar";return;}
+label.textContent=(frame.kind==="observed"?"Observed · ":"Forecast · ")+frame.label;
+}
+function createRadarLayer(){
+return L.tileLayer("",{opacity:0,zIndex:450,tileSize:256,updateWhenIdle:true,keepBuffer:1,attribution:"Radar: NOAA MRMS / HRRR via IEM"});
 }
 function ensureRadarLayers(){
-if(radarLayers.length||!radarFrames.length)return;
-radarLoaded=radarFrames.map(()=>false);
-radarLoadingComplete=false;
-radarLayers=radarFrames.map((frame,index)=>{
-const layer=L.tileLayer(radarTileUrl(frame),{
-opacity:0,
-zIndex:450,
-tileSize:256,
-updateWhenIdle:true,
-keepBuffer:1,
-maxNativeZoom:7,
-attribution:"Radar: NOAA MRMS / IEM"
-});
-layer.once("load",()=>{
-radarLoaded[index]=true;
-if(radarLoaded.every(Boolean)){
-radarLoadingComplete=true;
-radarActiveLayer=radarFrames.length-1;
-updateRadarFrame(radarActiveLayer,false);
-}else{
-updateRadarLoadingState();
+if(radarState.layers[0])return;
+radarState.layers=[createRadarLayer(),createRadarLayer()];
+radarState.layers.forEach(layer=>layer.addTo(map));
 }
-});
-layer.addTo(map);
-return layer;
-});
-updateRadarLoadingState();
-}
-function animateRadarTransition(fromIndex,toIndex,targetOpacity){
-if(radarAnimationId)cancelAnimationFrame(radarAnimationId);
-const outgoing=radarLayers[fromIndex],incoming=radarLayers[toIndex];
-const start=performance.now(),duration=350,token=radarTransitionToken;
+function animateRadarTransition(fromLayer,toLayer,targetOpacity){
+if(radarState.animationId)cancelAnimationFrame(radarState.animationId);
+const start=performance.now(),duration=360;
+return new Promise(resolve=>{
 function step(now){
-if(token!==radarTransitionToken)return;
 const progress=Math.min(1,(now-start)/duration);
 const eased=1-Math.pow(1-progress,3);
-if(outgoing&&fromIndex!==toIndex)outgoing.setOpacity(targetOpacity*(1-eased));
-if(incoming)incoming.setOpacity(targetOpacity*eased);
-if(progress<1){
-radarAnimationId=requestAnimationFrame(step);
-}else{
-if(outgoing&&fromIndex!==toIndex)outgoing.setOpacity(0);
-if(incoming)incoming.setOpacity(targetOpacity);
-radarActiveLayer=toIndex;
-radarAnimationId=null;
-updateRadarLoadingState();
+if(fromLayer)fromLayer.setOpacity(targetOpacity*(1-eased));
+toLayer.setOpacity(targetOpacity*eased);
+if(progress<1){radarState.animationId=requestAnimationFrame(step);}
+else{if(fromLayer)fromLayer.setOpacity(0);toLayer.setOpacity(targetOpacity);radarState.animationId=null;resolve();}}
+radarState.animationId=requestAnimationFrame(step);
+});
 }
-}
-radarAnimationId=requestAnimationFrame(step);
-}
-function updateRadarFrame(index,animate=true){
-if(!radarFrames.length||!radarLayers.length)return;
-const clamped=Math.max(0,Math.min(index,radarFrames.length-1));
-const target=radarLayers[clamped];
-if(!target)return;
-radarTransitionToken++;
-if(radarAnimationId){cancelAnimationFrame(radarAnimationId);radarAnimationId=null;}
-if(animate&&radarLoadingComplete&&clamped!==radarActiveLayer){
-animateRadarTransition(radarActiveLayer,clamped,radarOpacity);
-}else{
-radarLayers.forEach((layer,layerIndex)=>{if(layer)layer.setOpacity(layerIndex===clamped?radarOpacity:0);});
-radarActiveLayer=clamped;
-updateRadarLoadingState();
-}
+function loadRadarFrame(index,animate=true){
+if(!radarState.sequence.length)return Promise.resolve();
+const clamped=Math.max(0,Math.min(index,radarState.sequence.length-1));
+const frame=radarState.sequence[clamped];
+const incomingIndex=1-radarState.currentLayer;
+const incoming=radarState.layers[incomingIndex];
+const outgoing=radarState.layers[radarState.currentLayer];
+radarState.currentIndex=clamped;
 document.getElementById("radar-slider").value=clamped;
+setRadarTimeLabel();
+incoming.options.tms=!!frame.tms;
+incoming.setOpacity(0);
+incoming.setUrl(frame.url,true);
+return new Promise(resolve=>{
+let settled=false;
+const finish=async()=>{
+if(settled)return;settled=true;
+incoming.off("load",finish);
+if(animate&&outgoing&&clamped!==radarState.currentIndexBefore)await animateRadarTransition(outgoing,incoming,radarOpacity);
+else{incoming.setOpacity(radarOpacity);if(outgoing)outgoing.setOpacity(0);}
+radarState.currentLayer=incomingIndex;
+resolve();
+};
+radarState.currentIndexBefore=radarState.currentIndex;
+incoming.once("load",finish);
+setTimeout(finish,5000);
+});
+}
+async function showRadarFrame(index,animate=true){
+if(!radarState.sequence.length)return;
+const from=radarState.currentIndex;
+radarState.currentIndexBefore=from;
+const clamped=Math.max(0,Math.min(index,radarState.sequence.length-1));
+const frame=radarState.sequence[clamped];
+const incomingIndex=1-radarState.currentLayer;
+const incoming=radarState.layers[incomingIndex];
+const outgoing=radarState.layers[radarState.currentLayer];
+radarState.currentIndex=clamped;
+document.getElementById("radar-slider").value=clamped;
+setRadarTimeLabel();
+incoming.options.tms=!!frame.tms;
+incoming.setOpacity(0);
+incoming.setUrl(frame.url,true);
+return new Promise(resolve=>{
+let settled=false;
+const finish=async()=>{
+if(settled)return;settled=true;
+incoming.off("load",finish);
+if(animate&&outgoing&&clamped!==from)await animateRadarTransition(outgoing,incoming,radarOpacity);
+else{incoming.setOpacity(radarOpacity);if(outgoing)outgoing.setOpacity(0);}
+radarState.currentLayer=incomingIndex;
+resolve();
+};
+incoming.once("load",finish);
+setTimeout(finish,5000);
+});
+}
+async function startRadarPlayback(){
+if(radarState.playing){stopRadarPlayback();return;}
+if(!radarState.sequence.length)return;
+radarState.playing=true;
+radarState.playToken++;
+const token=radarState.playToken;
+document.getElementById("radar-play").textContent="⏸";
+document.getElementById("radar-play").setAttribute("aria-label","Pause radar animation");
+let index=radarState.currentIndex;
+while(radarState.playing&&token===radarState.playToken){
+index=(index+1)%radarState.sequence.length;
+await showRadarFrame(index,true);
+await new Promise(resolve=>setTimeout(resolve,120));
+}
 }
 function stopRadarPlayback(){
-if(radarTimer){clearInterval(radarTimer);radarTimer=null;}
-radarPlaying=false;
+radarState.playing=false;
+radarState.playToken++;
 document.getElementById("radar-play").textContent="▶";
 document.getElementById("radar-play").setAttribute("aria-label","Play radar animation");
 }
-function startRadarPlayback(){
-if(radarPlaying){stopRadarPlayback();return;}
-if(!radarFrames.length||!radarLoadingComplete)return;
-radarPlaying=true;
-document.getElementById("radar-play").textContent="⏸";
-document.getElementById("radar-play").setAttribute("aria-label","Pause radar animation");
-let index=Number(document.getElementById("radar-slider").value);
-radarTimer=setInterval(()=>{
-index=(index+1)%radarFrames.length;
-updateRadarFrame(index,true);
-},650);
-}
-function closeRadarLayers(){
-radarTransitionToken++;
-stopRadarPlayback();
-if(radarAnimationId){cancelAnimationFrame(radarAnimationId);radarAnimationId=null;}
-radarLayers.forEach(layer=>{if(layer)map.removeLayer(layer);});
-radarLayers=[];
-radarLoaded=[];
-radarActiveLayer=0;
-radarLoadingComplete=false;
-}
-function toggleRadar(){
+async function toggleRadar(){
 const credit=document.getElementById("radar-credit");
-if(radarLayers.length){
-closeRadarLayers();
-credit.style.display="none";
+if(radarState.layers[0]){
+stopRadarPlayback();
+radarState.layers.forEach(layer=>{if(layer)map.removeLayer(layer);});
+radarState.layers=[null,null];
+radarState.sequence=[];
+radarState.currentIndex=23;
 document.getElementById("radar-timeline").style.display="none";
+credit.style.display="none";
 document.getElementById("radar-button").classList.remove("route-active");
 document.getElementById("radar-legend").style.display="none";
 return;
 }
-radarFrames=radarFrameTimes();
+await buildRadarSequence();
 ensureRadarLayers();
 document.getElementById("radar-timeline").style.display="block";
 credit.style.display="block";
 document.getElementById("radar-button").classList.add("route-active");
 document.getElementById("radar-legend").style.display="block";
-document.getElementById("radar-slider").max=String(radarFrames.length-1);
-document.getElementById("radar-slider").value=String(radarFrames.length-1);
-updateRadarLoadingState();
-}document.getElementById("search-button").addEventListener("click",searchLocations);
+document.getElementById("radar-slider").max=String(radarState.sequence.length-1);
+document.getElementById("radar-slider").value=String(radarState.currentIndex);
+await showRadarFrame(radarState.currentIndex,false);
+}
+document.getElementById("search-button").addEventListener("click",searchLocations);
 document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocations();});
 document.getElementById("locate-button").addEventListener("click",()=>{if(!navigator.geolocation){alert("Your browser does not provide location access.");return;}navigator.geolocation.getCurrentPosition(p=>{const lat=p.coords.latitude,lon=p.coords.longitude;map.setView([lat,lon],10);marker.setLatLng([lat,lon]);loadForecast(lat,lon);},()=>alert("Unable to access your location."));});
 document.getElementById("radar-button").addEventListener("click",toggleRadar);
@@ -373,7 +394,7 @@ document.getElementById("nav-locations").addEventListener("click",()=>{document.
 
 document.getElementById("route-button").addEventListener("click",()=>setRouteMode(!routeMode));
 document.getElementById("route-clear").addEventListener("click",clearRoute);
-document.getElementById("radar-play").addEventListener("click",startRadarPlayback);document.getElementById("radar-slider").addEventListener("input",e=>{stopRadarPlayback();updateRadarFrame(Number(e.target.value),true);});document.getElementById("radar-close").addEventListener("click",()=>{closeRadarLayers();document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");document.getElementById("radar-legend").style.display="none";});
+document.getElementById("radar-play").addEventListener("click",startRadarPlayback);document.getElementById("radar-slider").addEventListener("input",e=>{stopRadarPlayback();showRadarFrame(Number(e.target.value),true);});document.getElementById("radar-close").addEventListener("click",()=>{closeRadarLayers();document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");document.getElementById("radar-legend").style.display="none";});
 document.getElementById("radar-opacity").addEventListener("input",e=>{radarOpacity=Number(e.target.value)/100;radarLayers.forEach((layer,layerIndex)=>{if(layer)layer.setOpacity(layerIndex===radarActiveLayer?radarOpacity:0);});});
 document.getElementById("radar-opacity-down").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.max(30,Number(input.value)-5);input.dispatchEvent(new Event("input"));});
 document.getElementById("radar-opacity-up").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.min(100,Number(input.value)+5);input.dispatchEvent(new Event("input"));});
