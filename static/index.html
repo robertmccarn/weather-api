@@ -146,28 +146,40 @@ async function reverseGeocode(lat,lon){try{const r=await fetch("/api/geocode/rev
 function showLoading(){document.getElementById("status").textContent="Loading forecast...";document.getElementById("forecast").innerHTML="<div class='loading-skeleton'></div><div class='loading-skeleton'></div><div class='loading-skeleton'></div>";}
 async function loadForecast(lat,lon,locationName=null,{updateUrl=true}={}){
 showLoading();
-try{const r=await fetch("/api/forecast?latitude="+lat+"&longitude="+lon);if(!r.ok)throw 0;currentForecast=await r.json();const name=locationName||await reverseGeocode(lat,lon);saveRecent(name,lat,lon);
+try{
+const [forecastResponse,observationResponse]=await Promise.all([
+fetch("/api/forecast?latitude="+lat+"&longitude="+lon),
+fetch("/api/observations?latitude="+lat+"&longitude="+lon)
+]);
+if(!forecastResponse.ok)throw 0;
+currentForecast=await forecastResponse.json();
+currentObservation=observationResponse.ok?await observationResponse.json():null;
+const name=locationName||await reverseGeocode(lat,lon);
+saveRecent(name,lat,lon);
 if(updateUrl)history.replaceState(null,"","?lat="+lat.toFixed(4)+"&lon="+lon.toFixed(4));
-loadAlerts(lat,lon);document.getElementById("location").textContent=name;document.getElementById("coordinates").textContent=lat.toFixed(4)+", "+lon.toFixed(4);
-document.getElementById("status").textContent="Forecast for "+(currentForecast.timezone||"local time");
+loadAlerts(lat,lon);
+document.getElementById("location").textContent=name;
+document.getElementById("coordinates").textContent=lat.toFixed(4)+", "+lon.toFixed(4);
 const current=currentForecast.hourly[0],info=weatherInfo(current.weather_code);
 if(currentObservation&&currentObservation.temperature_f!=null){
-document.getElementById("current-temp").textContent=Math.round(currentObservation.temperature_f)+"°";
-document.getElementById("feels-like").textContent=Math.round(currentObservation.apparent_temperature_f??current.apparent_temperature)+"°";
-document.getElementById("current-condition").textContent=(currentObservation.text_description||info[0]);
 document.getElementById("status").textContent="Forecast · "+(currentForecast.timezone||"local time");
+document.getElementById("current-temp").textContent=Math.round(currentObservation.temperature_f)+"°";
+const apparent=currentObservation.apparent_temperature_f??current.apparent_temperature;
+document.getElementById("feels-like").textContent=Math.round(apparent)+"°";
+document.getElementById("current-condition").textContent=currentObservation.text_description||info[1]+" "+info[0];
 const observedAt=currentObservation.timestamp?new Date(currentObservation.timestamp):null;
 const age=observedAt?Math.max(0,Math.round((Date.now()-observedAt.getTime())/60000)):null;
 document.getElementById("data-source").innerHTML="<span class='data-source-dot'></span><span><strong>NWS observed</strong> · "+currentObservation.station_name+(age!=null?" · "+age+" min ago":"")+"</span>";
 }else{
+document.getElementById("status").textContent="Forecast · "+(currentForecast.timezone||"local time");
 document.getElementById("current-temp").textContent=Math.round(current.temperature)+"°";
 document.getElementById("feels-like").textContent=Math.round(current.apparent_temperature)+"°";
 document.getElementById("current-condition").textContent=info[1]+" "+info[0];
-document.getElementById("data-source").innerHTML="<span class='data-source-dot'></span><span><strong>Open-Meteo forecast</strong> · live model conditions</span>";
+document.getElementById("data-source").innerHTML="<span class='data-source-dot' style='background:#f59e0b'></span><span><strong>Open-Meteo</strong> · forecast model conditions</span>";
 }
-
 renderChart();renderForecast();
-}catch{document.getElementById("status").textContent="Unable to load forecast.";document.getElementById("forecast").innerHTML="";}}
+}catch{document.getElementById("status").textContent="Unable to load forecast.";document.getElementById("forecast").innerHTML="";document.getElementById("data-source").innerHTML="<span class='data-source-dot' style='background:#f59e0b'></span><span>Weather data unavailable</span>";}
+}
 function renderForecast(){
 if(!currentForecast)return;const forecast=document.getElementById("forecast");forecast.innerHTML="";
 if(currentView==="daily"){const wrapper=document.createElement("div");wrapper.className="daily";currentForecast.daily.forEach((day,i)=>{const info=weatherInfo(day.weather_code),card=document.createElement("div");card.className="daily-card";const date=i===0?"Today":i===1?"Tomorrow":formatDay(day.date);
