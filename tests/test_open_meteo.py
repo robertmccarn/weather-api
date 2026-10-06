@@ -147,3 +147,48 @@ def test_get_forecast_does_not_retry_on_bad_request(mock_get, mock_sleep):
 
     assert mock_get.call_count == 1
     assert mock_sleep.call_count == 0
+
+
+@patch("open_meteo.time.sleep")
+@patch("open_meteo.requests.get")
+def test_get_forecast_batch_returns_one_forecast_per_coordinate(mock_get, mock_sleep):
+    client = OpenMeteoClient()
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = [
+        {
+            "hourly": {
+                "time": ["2026-10-06T10:00"],
+                "temperature_2m": [80.0],
+                "precipitation": [0.0],
+                "relative_humidity_2m": [70.0],
+            }
+        },
+        {
+            "hourly": {
+                "time": ["2026-10-06T10:00"],
+                "temperature_2m": [81.0],
+                "precipitation": [0.1],
+                "relative_humidity_2m": [68.0],
+            }
+        },
+    ]
+    mock_get.return_value = mock_response
+
+    result = client.get_forecast_batch([
+        (30.0799, -95.4172),
+        (29.7604, -95.3698),
+    ])
+
+    assert len(result) == 2
+    assert result[0]["hourly"]["temperature_2m"] == [80.0]
+    assert result[1]["hourly"]["temperature_2m"] == [81.0]
+    assert mock_get.call_count == 1
+    assert mock_sleep.call_count == 0
+
+
+def test_get_forecast_batch_returns_empty_for_no_coordinates():
+    client = OpenMeteoClient()
+
+    assert client.get_forecast_batch([]) == []
