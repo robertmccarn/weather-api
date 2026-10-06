@@ -114,3 +114,47 @@ def test_alerts_returns_point_alerts():
 
     assert response.status_code == 200
     assert response.json()[0]["event"] == "Heat Advisory"
+
+
+def test_route_weather_endpoint():
+    mock_route = {
+        "origin": {"latitude": 30.0, "longitude": -95.0},
+        "destination": {"latitude": 31.0, "longitude": -94.0},
+        "distance_km": 120.0,
+        "duration_minutes": 120.0,
+        "geometry": [
+            {"latitude": 30.0, "longitude": -95.0},
+            {"latitude": 31.0, "longitude": -94.0},
+        ],
+        "points": [
+            {
+                "latitude": 30.0,
+                "longitude": -95.0,
+                "distance_km": 0.0,
+                "eta": "2026-10-06T10:00:00",
+                "weather": {"temperature": 80.0},
+            }
+        ],
+    }
+
+    with patch("app.route_weather_service.get_route_weather", return_value=mock_route):
+        response = client.get(
+            "/api/route-weather"
+            "?origin_latitude=30&origin_longitude=-95"
+            "&destination_latitude=31&destination_longitude=-94"
+            "&departure=2026-10-06T10:00:00"
+        )
+
+    assert response.status_code == 200
+    assert response.json()["distance_km"] == 120.0
+    assert response.json()["points"][0]["weather"]["temperature"] == 80.0
+
+
+def test_route_weather_rejects_invalid_coordinates():
+    response = client.get(
+        "/api/route-weather"
+        "?origin_latitude=100&origin_longitude=-95"
+        "&destination_latitude=31&destination_longitude=-94"
+    )
+
+    assert response.status_code == 422
