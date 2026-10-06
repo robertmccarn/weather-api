@@ -35,6 +35,20 @@ class WeatherDatabase:
             for duplicate_id in duplicate_ids:
                 self.cursor.execute(
                     """
+                    DELETE FROM weather
+                    WHERE location_id = ?
+                      AND EXISTS (
+                          SELECT 1
+                          FROM weather AS canonical_weather
+                          WHERE canonical_weather.location_id = ?
+                            AND canonical_weather.timestamp = weather.timestamp
+                      )
+                    """,
+                    (duplicate_id, canonical_id),
+                )
+
+                self.cursor.execute(
+                    """
                     UPDATE weather
                     SET location_id = ?
                     WHERE location_id = ?
