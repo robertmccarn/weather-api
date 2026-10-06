@@ -388,9 +388,11 @@ marker.setLatLng([lat,lon]);loadForecast(lat,lon);
 window.addEventListener("popstate",()=>loadFromUrl());
 function loadFromUrl(){const p=new URLSearchParams(location.search),lat=Number(p.get("lat")),lon=Number(p.get("lon"));if(Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180){map.setView([lat,lon],10);marker.setLatLng([lat,lon]);loadForecast(lat,lon,null,{updateUrl:false});return false;}return true;}
 document.getElementById("share-button").addEventListener("click",async()=>{const url=location.href;if(navigator.share){try{await navigator.share({title:"Weather Map",url});return;}catch{}}try{await navigator.clipboard.writeText(url);const b=document.getElementById("share-button"),old=b.textContent;b.textContent="Copied!";setTimeout(()=>b.textContent=old,1200);}catch{prompt("Copy this forecast link:",url);}});
+document.getElementById("nav-radar").classList.add("active");
 renderRecent();
 if(loadFromUrl()){
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{const lat=p.coords.latitude,lon=p.coords.longitude;map.setView([lat,lon],10);marker.setLatLng([lat,lon]);loadForecast(lat,lon);},()=>loadForecast(DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon,DEFAULT_LOCATION.name));}else loadForecast(DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon,DEFAULT_LOCATION.name);
 }
+toggleRadar();
 </script>
 </body></html>
