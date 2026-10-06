@@ -81,24 +81,6 @@ class NWSObservationService:
             station_id,
         )
 
-        observation_url = station_payload.get("properties", {}).get(
-            "observationStations",
-        )
-        if observation_url:
-            latest_station = self._get_json(observation_url)
-            features = latest_station.get("features", [])
-            if features:
-                station = features[0]
-                station_id = (
-                    station.get("properties", {}).get("stationIdentifier")
-                    or station.get("id", "").rsplit("/", 1)[-1]
-                    or station_id
-                )
-                station_name = station.get("properties", {}).get(
-                    "name",
-                    station_name,
-                )
-
         latest_url = f"{self.BASE_URL}/stations/{station_id}/observations/latest"
         payload = self._get_json(latest_url)
         properties = payload.get("properties", {})
