@@ -68,7 +68,7 @@ class MRMSClient:
             "sampleCount": 1,
             "returnFirstValueOnly": "true",
             "interpolation": "RSP_NearestNeighbor",
-            "format": "json",
+            "f": "json",
             "renderingRule": (
                 f'{{"rasterFunction":"{self.PRODUCT_RULES[product]}"}}'
             ),
