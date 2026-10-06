@@ -25,7 +25,7 @@ button{border:1px solid #cbd5e1;border-radius:7px;padding:9px 11px;cursor:pointe
 .search-results{position:absolute;top:47px;left:0;width:min(500px,calc(100% - 90px));background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(15,23,42,.22);overflow:hidden;display:none}.search-result{padding:9px 11px;border-bottom:1px solid #e5e7eb;cursor:pointer;font-size:12px}.search-result:hover{background:#f8fafc}
 .panel{background:var(--panel);padding:14px 12px 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;border-left:1px solid #d6dee8}
 .location-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:0 7px 0}.location-title h2{margin:0;font-size:20px;line-height:1.05;letter-spacing:-.02em}#coordinates{color:#526176;font-size:11px;margin-top:4px}.location-sub{color:#64748b;font-size:10px;font-style:italic;margin-top:2px}
-.recent{display:flex;gap:4px;flex-wrap:wrap;margin:7px 6px 10px}.recent button{box-shadow:none;border:1px solid #d6dee8;padding:4px 7px;font-size:9px;text-transform:none;background:#fff}
+.recent{display:flex;gap:4px;flex-wrap:wrap;margin:7px 6px 10px}.recent button{box-shadow:none;border:1px solid #d6dee8;padding:4px 7px;font-size:9px;text-transform:none;background:#fff}.recent button:first-child{background:#132033;color:#fff;border-color:#132033}
 .alert-banner{display:none;margin:0 6px 8px;padding:8px 10px;border-radius:8px;background:#fff4e5;border:1px solid #f59e0b;color:#7c2d12;font-size:10px}.alert-banner strong{display:block}
 .data-source{display:flex;align-items:center;gap:5px;color:#64748b;font-size:9px;margin:2px 7px 7px}.data-source-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.10);flex:none}.data-source strong{color:#334155}
 #status{display:none}
@@ -151,6 +151,9 @@ function formatHour(s){return new Date(s).toLocaleTimeString([],{hour:"numeric"}
 function formatDateTime(s){return new Date(s).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
 async function reverseGeocode(lat,lon){try{const r=await fetch("/api/geocode/reverse?latitude="+lat+"&longitude="+lon);if(!r.ok)throw 0;const d=await r.json(),a=d.address||{};const city=a.city||a.town||a.village||a.municipality||a.county||"Selected location";return a.state?city+", "+a.state:city;}catch{return lat.toFixed(4)+", "+lon.toFixed(4);}}
 function showLoading(){document.getElementById("status").textContent="Loading forecast...";document.getElementById("forecast").innerHTML="<div class='loading-skeleton'></div><div class='loading-skeleton'></div><div class='loading-skeleton'></div>";}
+function updateLocationPopup(name,temp,feels,condition,icon){
+marker.bindPopup("<div class='weather-popup'><strong>"+name+"</strong><div class='popup-temp'>"+icon+" "+Math.round(temp)+"°F</div><div>"+condition+" · Feels "+Math.round(feels)+"°</div></div>",{closeButton:false,offset:[0,-6],autoPan:false}).openPopup();
+}
 async function loadForecast(lat,lon,locationName=null,{updateUrl=true}={}){
 showLoading();
 try{
@@ -184,7 +187,7 @@ document.getElementById("feels-like").textContent=Math.round(current.apparent_te
 document.getElementById("condition-icon").textContent=info[1];document.getElementById("current-condition").textContent=info[0];
 document.getElementById("data-source").innerHTML="<span class='data-source-dot' style='background:#f59e0b'></span><span><strong>Open-Meteo</strong> · forecast model conditions</span>";
 }
-renderChart();renderForecast();
+renderChart();renderForecast();updateLocationPopup(name,currentObservation&&currentObservation.temperature_f!=null?currentObservation.temperature_f:current.temperature,currentObservation&&currentObservation.apparent_temperature_f!=null?currentObservation.apparent_temperature_f:current.apparent_temperature,currentObservation&&currentObservation.text_description?currentObservation.text_description:info[0],info[1]);
 }catch{document.getElementById("status").textContent="Unable to load forecast.";document.getElementById("forecast").innerHTML="";document.getElementById("data-source").innerHTML="<span class='data-source-dot' style='background:#f59e0b'></span><span>Weather data unavailable</span>";}
 }
 function renderForecast(){
@@ -318,7 +321,7 @@ radarFrames=radarFrameTimes();
 ensureRadarLayers();
 document.getElementById("radar-timeline").style.display="block";
 credit.style.display="block";
-document.getElementById("radar-button").classList.add("route-active");
+document.getElementById("radar-button").classList.add("route-active");document.getElementById("radar-legend").style.display="block";
 updateRadarFrame(radarFrames.length-1,false);
 }
 document.getElementById("search-button").addEventListener("click",searchLocations);
