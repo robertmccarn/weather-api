@@ -328,17 +328,19 @@ return ready;
 }
 function animateRadarTransition(fromLayer,toLayer,targetOpacity){
 if(radarState.animationId)cancelAnimationFrame(radarState.animationId);
-const start=performance.now(),duration=420;
+const start=performance.now(),duration=500;
+toLayer.setOpacity(0);
+if(fromLayer)fromLayer.setOpacity(targetOpacity);
 return new Promise(resolve=>{
 function step(now){
 const progress=Math.min(1,(now-start)/duration);
 const eased=1-Math.pow(1-progress,3);
-if(fromLayer)fromLayer.setOpacity(targetOpacity*(1-eased));
-if(toLayer)toLayer.setOpacity(targetOpacity*eased);
-if(progress<1)radarState.animationId=requestAnimationFrame(step);
-else{
+toLayer.setOpacity(targetOpacity*eased);
+if(progress<1){
+radarState.animationId=requestAnimationFrame(step);
+}else{
+toLayer.setOpacity(targetOpacity);
 if(fromLayer)fromLayer.setOpacity(0);
-if(toLayer)toLayer.setOpacity(targetOpacity);
 radarState.animationId=null;
 resolve();
 }
@@ -359,6 +361,8 @@ if(radarState.animationId)cancelAnimationFrame(radarState.animationId);
 const targetReady=await prepareRadarLayer(targetLayerIndex,clamped);
 if(!targetReady)return;
 const targetLayer=radarState.layers[targetLayerIndex];
+targetLayer.setZIndex(451);
+if(fromLayer)fromLayer.setZIndex(450);
 if(animate&&fromLayer&&clamped!==fromIndex){
 await animateRadarTransition(fromLayer,targetLayer,radarOpacity);
 }else{
@@ -383,7 +387,7 @@ let index=radarState.currentIndex;
 while(radarState.playing&&token===radarState.playToken){
 index=(index+1)%radarState.sequence.length;
 await showRadarFrame(index,true);
-await new Promise(resolve=>setTimeout(resolve,80));
+await new Promise(resolve=>setTimeout(resolve,220));
 }
 }
 function stopRadarPlayback(){
