@@ -74,3 +74,33 @@ def test_forecast_returns_bad_gateway_when_weather_service_fails():
         )
 
     assert response.status_code == 502
+
+
+def test_alerts_returns_point_alerts():
+    mock_data = {
+        "features": [
+            {
+                "id": "alert-1",
+                "properties": {
+                    "event": "Heat Advisory",
+                    "severity": "Moderate",
+                    "urgency": "Expected",
+                    "headline": "Heat advisory in effect",
+                    "description": "Take precautions.",
+                    "expires": "2026-10-06T20:00:00Z",
+                    "areaDesc": "Harris County",
+                }
+            }
+        ]
+    }
+
+    with patch("app.requests.get") as mock_get:
+        mock_get.return_value.raise_for_status.return_value = None
+        mock_get.return_value.json.return_value = mock_data
+
+        response = client.get(
+            "/api/alerts?latitude=29.7604&longitude=-95.3698"
+        )
+
+    assert response.status_code == 200
+    assert response.json()[0]["event"] == "Heat Advisory"
