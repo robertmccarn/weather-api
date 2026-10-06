@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f4f6f8; color: #1f2937; }
+        header { padding: 20px 24px; background: #1f2937; color: white; }
+        header h1 { margin: 0 0 6px; }
+        header p { margin: 0; color: #d1d5db; }
+        main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 20px; padding: 20px; max-width: 1400px; margin: auto; }
+        #map { height: 650px; border-radius: 8px; overflow: hidden; }
+        .panel { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+        .panel h2 { margin-top: 0; }
+        #forecast { max-height: 570px; overflow-y: auto; }
+        .hour { display: grid; grid-template-columns: 1fr 1fr; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
+        .status { margin-bottom: 14px; color: #4b5563; }
+        @media (max-width: 900px) { main { grid-template-columns: 1fr; } #map { height: 450px; } }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Weather Map</h1>
+        <p>Click anywhere on the map to view the forecast for that location.</p>
+    </header>
+    <main>
+        <div id="map"></div>
+        <section class="panel">
+            <h2 id="location">Select a location</h2>
+            <div class="status" id="status">Click the map to load a forecast.</div>
+            <div id="forecast"></div>
+        </section>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map("map").setView([30.0799, -95.4172], 8);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(map);
+        let marker = L.marker([30.0799, -95.4172]).addTo(map);
+
+        function formatHour(timestamp) {
+            return new Date(timestamp).toLocaleString([], {
+                weekday: "short", month: "short", day: "numeric", hour: "numeric"
+            });
+        }
+
+        async function loadForecast(latitude, longitude) {
+            const status = document.getElementById("status");
+            const location = document.getElementById("location");
+            const forecast = document.getElementById("forecast");
+            status.textContent = "Loading forecast...";
+            forecast.innerHTML = "";
+            try {
+                const response = await fetch(`/api/forecast?latitude=${latitude}&longitude=${longitude}`);
+                if (!response.ok) throw new Error("Forecast request failed.");
+                const data = await response.json();
+                location.textContent = `${data.latitude.toFixed(4)}, ${data.longitude.toFixed(4)}`;
+                status.textContent = `${data.hourly.length} hourly forecast records`;
+                data.hourly.forEach((hour) => {
+                    const row = document.createElement("div");
+                    row.className = "hour";
+                    row.innerHTML = `<div><strong>${formatHour(hour.time)}</strong><br>${hour.temperature} °F</div><div>Rain: ${hour.precipitation} mm<br>Humidity: ${hour.humidity}%</div>`;
+                    forecast.appendChild(row);
+                });
+            } catch (error) {
+                status.textContent = "Unable to load forecast.";
+            }
+        }
+
+        map.on("click", (event) => {
+            const { lat, lng } = event.latlng;
+            marker.setLatLng([lat, lng]);
+            loadForecast(lat, lng);
+        });
+
+        loadForecast(30.0799, -95.4172);
+    </script>
+</body>
+</html>
