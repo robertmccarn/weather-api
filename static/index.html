@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weather Map</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef2f7;color:#172033}
-header{padding:18px 24px;background:#172033;color:white}
-header h1{margin:0 0 4px} header p{margin:0;color:#cbd5e1}
-main{display:grid;grid-template-columns:minmax(0,2fr) minmax(360px,1fr);gap:16px;height:calc(100vh - 91px);padding:16px;max-width:1600px;margin:auto}
-.map-wrap{position:relative;min-height:0}
-#map{height:100%;min-height:500px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-.map-controls{position:absolute;z-index:1000;top:12px;left:12px;right:12px;display:flex;gap:8px;max-width:650px}
-.search-box{flex:1;display:flex;background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden}
+html,body{width:100%;height:100%;margin:0}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef2f7;color:#172033;overflow:hidden}
+header{height:76px;padding:16px 24px;background:#172033;color:white}
+header h1{margin:0 0 2px;font-size:22px} header p{margin:0;color:#cbd5e1;font-size:13px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 380px;width:100vw;height:calc(100vh - 76px);overflow:hidden}
+.map-wrap{position:relative;min-width:0;min-height:0}
+#map{height:100%;width:100%}
+.map-controls{position:absolute;z-index:1000;top:12px;left:12px;right:12px;display:flex;gap:8px;max-width:720px;flex-wrap:wrap}
+.search-box{flex:1 1 360px;display:flex;background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden;min-width:220px}
 .search-box input{min-width:0;flex:1;border:0;padding:11px 12px;font-size:14px;outline:none}
 button{border:0;border-radius:8px;padding:10px 13px;cursor:pointer;background:white;color:#172033;box-shadow:0 2px 8px rgba(0,0,0,.18);font-weight:600}
 button:hover{background:#f1f5f9}
@@ -22,128 +16,101 @@ button:hover{background:#f1f5f9}
 .search-results{position:absolute;top:50px;left:0;width:min(500px,calc(100% - 100px));background:white;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,.2);overflow:hidden;display:none}
 .search-result{padding:10px 12px;border-bottom:1px solid #e5e7eb;cursor:pointer;font-size:14px}
 .search-result:hover{background:#f8fafc}
-.panel{background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.10);min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.panel{background:white;border-radius:0;padding:18px;min-height:0;overflow:hidden;display:flex;flex-direction:column;border-left:1px solid #dbe2ea}
 .location-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-#location{margin:0;font-size:25px}
-#coordinates{color:#64748b;font-size:12px;margin-top:3px}
-#status{color:#64748b;font-size:13px;margin:7px 0 12px}
-.tabs{display:flex;gap:6px;margin-bottom:12px}
-.tabs button{box-shadow:none;border:1px solid #dbe2ea;padding:8px 12px}
-.tabs button.active{background:#172033;color:white;border-color:#172033}
+#location{margin:0;font-size:25px} #coordinates{color:#64748b;font-size:12px;margin-top:3px}
+#status{color:#64748b;font-size:13px;margin:7px 0 10px}
+.recent{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.recent button{box-shadow:none;border:1px solid #dbe2ea;padding:5px 9px;font-size:12px}
 .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.metric{background:#f8fafc;border-radius:8px;padding:10px}
-.metric-label{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
-.metric-value{font-size:18px;font-weight:700;margin-top:3px}
-#chart-wrap{height:150px;margin-bottom:8px}
+.metric{background:#f8fafc;border-radius:8px;padding:10px}.metric-label{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.metric-value{font-size:18px;font-weight:700;margin-top:3px}
+.alert-banner{display:none;margin-bottom:10px;padding:10px 12px;border-radius:8px;background:#fff4e5;border:1px solid #f59e0b;color:#7c2d12}.alert-banner strong{display:block}
+.tabs{display:flex;gap:6px;margin-bottom:8px}.tabs button{box-shadow:none;border:1px solid #dbe2ea;padding:8px 12px}.tabs button.active{background:#172033;color:white;border-color:#172033}
+.chart-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 6px}
+.metric-tabs{display:flex;gap:4px}.metric-tabs button{box-shadow:none;border:1px solid #dbe2ea;padding:5px 8px;font-size:11px}.metric-tabs button.active{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+#chart-wrap{height:165px;margin-bottom:8px;position:relative}
 #forecast{min-height:0;overflow-y:auto;padding-right:4px}
-.day-header{font-weight:750;margin:15px 0 6px;color:#172033}
-.hour{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid #edf0f3}
-.weather-icon{font-size:23px}.hour-time{font-weight:650;font-size:13px}.hour-detail{color:#64748b;font-size:12px}.hour-temp{font-size:18px;font-weight:700}
-.daily{display:grid;gap:8px}.daily-card{display:grid;grid-template-columns:72px 42px 1fr auto;align-items:center;gap:8px;padding:11px 6px;border-bottom:1px solid #edf0f3}
-.daily-date{font-weight:700}.daily-range{font-weight:700}.daily-detail{color:#64748b;font-size:12px}
-.radar-timeline{position:absolute;z-index:1000;bottom:12px;left:12px;right:12px;background:rgba(255,255,255,.94);padding:10px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);display:none}.radar-timeline input{width:100%}.radar-buttons{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#475569}.recent{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.recent button{box-shadow:none;border:1px solid #dbe2ea;padding:5px 9px;font-size:12px}.alert-banner{display:none;margin-bottom:10px;padding:10px 12px;border-radius:8px;background:#fff4e5;border:1px solid #f59e0b;color:#7c2d12}.alert-banner strong{display:block}.loading{opacity:.6}.daily-card{cursor:pointer}.daily-card:hover{background:#f8fafc}.temp-high{color:#172033}.temp-low{color:#64748b}.condition-pill{display:inline-block;padding:2px 7px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:650;margin-top:3px}.daily-expanded{grid-column:1/-1;padding:8px 4px;color:#475569;font-size:12px;background:#f8fafc;border-radius:6px}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
-@media(max-width:900px){header{padding:14px 16px}main{display:flex;flex-direction:column;height:auto;padding:10px}#map{height:55vh;min-height:400px}.panel{max-height:70vh}.map-controls{flex-wrap:wrap}}
+.day-header{font-weight:750;margin:15px 0 6px;color:#172033;position:sticky;top:0;background:white;padding:4px 0;z-index:2}
+.hour{display:grid;grid-template-columns:60px 1fr 55px;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid #edf0f3;transition:background .15s}
+.hour:hover,.hour.chart-highlight{background:#eff6ff}.weather-icon{font-size:23px;text-align:center}.hour-time{font-weight:650;font-size:13px}.hour-detail{color:#64748b;font-size:12px}.hour-temp{font-size:18px;font-weight:700;text-align:right}
+.hour.peak{background:#f8fafc}.hour.peak .hour-temp{font-weight:800;color:#1d4ed8}
+.daily{display:grid;gap:8px}.daily-card{display:grid;grid-template-columns:72px 42px 1fr auto;align-items:center;gap:8px;padding:11px 6px;border-bottom:1px solid #edf0f3;cursor:pointer}.daily-card:hover{background:#f8fafc}
+.daily-date{font-weight:700}.daily-range{font-weight:700}.daily-detail{color:#64748b;font-size:12px}.temp-high{color:#172033}.temp-low{color:#64748b}
+.weather-icon{font-size:23px}.condition-pill{display:inline-block;padding:2px 7px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:650;margin-top:3px}
+.daily-expanded{grid-column:1/-1;padding:8px 10px;color:#475569;font-size:12px;background:#f8fafc;border-radius:6px}.daily-expanded strong{color:#172033}
+.radar-timeline{position:absolute;z-index:1000;bottom:12px;left:12px;right:12px;background:rgba(255,255,255,.94);padding:10px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);display:none}.radar-timeline input{width:100%}.radar-buttons{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#475569}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
+.loading-skeleton{height:42px;border-radius:8px;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;margin-bottom:8px}
+@keyframes shimmer{to{background-position:-200% 0}}
+.leaflet-popup-content-wrapper{border-radius:10px}.weather-popup{min-width:150px}.weather-popup .popup-temp{font-size:22px;font-weight:800;margin:3px 0}
+@media(max-width:900px){body{overflow:auto}header{height:auto;padding:14px 16px}main{display:flex;flex-direction:column;height:auto;min-height:calc(100vh - 68px)}.map-wrap{height:55vh;min-height:390px}.panel{height:auto;max-height:none;border-left:0}.map-controls{right:8px;left:8px}.search-box{flex-basis:100%}.search-results{top:96px;width:calc(100% - 96px)}#chart-wrap{height:145px}}
 </style>
 </head>
 <body>
 <header><h1>Weather Map</h1><p>Click the map, search for a place, or use your current location.</p></header>
 <main>
-<div class="map-wrap">
-<div id="map"></div>
-<div class="map-controls">
-<div class="search-box"><input id="search-input" type="search" placeholder="Search a city or place..."><button id="search-button">Search</button></div>
-<button id="locate-button" title="Use my location">My location</button>
-<button id="radar-button" title="Toggle radar">Radar</button>
-<div id="search-results" class="search-results"></div>
-</div>
-<div id="radar-credit" class="radar-credit">Weather radar by RainViewer</div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><button id="radar-play">▶ Play</button><span id="radar-time">Radar history</span><button id="radar-close">Close</button></div><input id="radar-slider" type="range" min="0" max="0" value="0"></div>
-</div>
-<section class="panel">
-<div class="location-title"><div><h2 id="location">Spring, TX</h2><div id="coordinates">30.0799, -95.4172</div></div></div>
-<div id="alert-banner" class="alert-banner"></div><div id="status">Loading forecast...</div><div id="recent" class="recent"></div>
-<div class="summary">
-<div class="metric"><div class="metric-label">Now</div><div class="metric-value" id="current-temp">--</div></div>
-<div class="metric"><div class="metric-label">Feels like</div><div class="metric-value" id="feels-like">--</div></div>
-<div class="metric"><div class="metric-label">Conditions</div><div class="metric-value" id="current-condition">--</div></div>
-</div>
-<div class="tabs"><button id="daily-tab" class="active">7-Day</button><button id="hourly-tab">Hourly</button></div>
-<div id="chart-wrap"><canvas id="temperature-chart"></canvas></div>
-<div id="forecast"></div>
-</section>
+<div class="map-wrap"><div id="map"></div><div class="map-controls"><div class="search-box"><input id="search-input" type="search" placeholder="Search a city or place..."><button id="search-button">Search</button></div><button id="locate-button" title="Use my location">My location</button><button id="radar-button" title="Toggle radar">Radar</button><button id="share-button" title="Copy or share this forecast">Share</button><div id="search-results" class="search-results"></div></div><div id="radar-credit" class="radar-credit">Weather radar by RainViewer</div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><button id="radar-play">▶ Play</button><span id="radar-time">Radar history</span><button id="radar-close">Close</button></div><input id="radar-slider" type="range" min="0" max="0" value="0"></div></div>
+<section class="panel"><div class="location-title"><div><h2 id="location">Spring, TX</h2><div id="coordinates">30.0799, -95.4172</div></div></div><div id="alert-banner" class="alert-banner"></div><div id="status">Loading forecast...</div><div id="recent" class="recent"></div><div class="summary"><div class="metric"><div class="metric-label">Now</div><div class="metric-value" id="current-temp">--</div></div><div class="metric"><div class="metric-label">Feels like</div><div class="metric-value" id="feels-like">--</div></div><div class="metric"><div class="metric-label">Conditions</div><div class="metric-value" id="current-condition">--</div></div></div><div class="tabs"><button id="daily-tab" class="active">7-Day</button><button id="hourly-tab">Hourly</button></div><div class="chart-tools"><strong>Next 24 hours</strong><div class="metric-tabs"><button data-metric="temperature" class="active">Temp °F</button><button data-metric="precipitation">Rain %</button><button data-metric="wind">Wind mph</button></div></div><div id="chart-wrap"><canvas id="temperature-chart"></canvas></div><div id="forecast"></div></section>
 </main>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
-<script>
-const map=L.map("map").setView([30.0799,-95.4172],8);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script><script>const DEFAULT_LOCATION={lat:30.0799,lon:-95.4172,name:"Spring, TX"};
+const map=L.map("map").setView([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
-let marker=L.marker([30.0799,-95.4172]).addTo(map);
-let radarLayer=null,currentForecast=null,currentView="daily",temperatureChart=null,radarFrames=[],radarHost="",radarPlaying=false,radarTimer=null,expandedDay=null;
+let marker=L.marker([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon]).addTo(map);
+let radarLayer=null,currentForecast=null,currentView="daily",temperatureChart=null,radarFrames=[],radarHost="",radarPlaying=false,radarTimer=null,expandedDay=null,currentMetric="temperature";
 const weatherDescriptions={0:["Clear sky","☀️"],1:["Mainly clear","🌤️"],2:["Partly cloudy","⛅"],3:["Overcast","☁️"],45:["Fog","🌫️"],48:["Rime fog","🌫️"],51:["Light drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy drizzle","🌧️"],61:["Light rain","🌦️"],63:["Rain","🌧️"],65:["Heavy rain","🌧️"],71:["Light snow","🌨️"],73:["Snow","❄️"],75:["Heavy snow","❄️"],80:["Light showers","🌦️"],81:["Showers","🌧️"],82:["Heavy showers","⛈️"],95:["Thunderstorm","⛈️"],96:["Thunderstorm with hail","⛈️"],99:["Severe thunderstorm","⛈️"]};
 function weatherInfo(code){return weatherDescriptions[code]||["Unknown","🌡️"];}
-function direction(degrees){if(degrees===null||degrees===undefined)return"--";const d=["N","NE","E","SE","S","SW","W","NW"];return d[Math.round(degrees/45)%8];}
+function direction(degrees){if(degrees===null||degrees===undefined)return"--";return["N","NE","E","SE","S","SW","W","NW"][Math.round(degrees/45)%8];}
 function formatDay(s){return new Date(s+"T12:00:00").toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"});}
 function formatHour(s){return new Date(s).toLocaleTimeString([],{hour:"numeric"});}
+function formatDateTime(s){return new Date(s).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
 async function reverseGeocode(lat,lon){try{const r=await fetch("/api/geocode/reverse?latitude="+lat+"&longitude="+lon);if(!r.ok)throw 0;const d=await r.json(),a=d.address||{};const city=a.city||a.town||a.village||a.municipality||a.county||"Selected location";return a.state?city+", "+a.state:city;}catch{return lat.toFixed(4)+", "+lon.toFixed(4);}}
-async function loadForecast(lat,lon,locationName=null){
-const status=document.getElementById("status"),forecast=document.getElementById("forecast");
-status.textContent="Loading forecast...";forecast.innerHTML="";
-try{
-const r=await fetch("/api/forecast?latitude="+lat+"&longitude="+lon);if(!r.ok)throw 0;
-currentForecast=await r.json();const name=locationName||await reverseGeocode(lat,lon);saveRecent(name,lat,lon);loadAlerts(lat,lon);
-document.getElementById("location").textContent=name;document.getElementById("coordinates").textContent=lat.toFixed(4)+", "+lon.toFixed(4);
-status.textContent="Forecast for "+(currentForecast.timezone||"local time");
-const current=currentForecast.hourly[0],info=weatherInfo(current.weather_code);
-document.getElementById("current-temp").textContent=Math.round(current.temperature)+"°";
-document.getElementById("feels-like").textContent=Math.round(current.apparent_temperature)+"°";
-document.getElementById("current-condition").textContent=info[1]+" "+info[0];
-marker.bindPopup("<strong>"+name+"</strong><br>"+Math.round(current.temperature)+"°F | "+info[0]).openPopup();
+function showLoading(){document.getElementById("status").textContent="Loading forecast...";document.getElementById("forecast").innerHTML="<div class='loading-skeleton'></div><div class='loading-skeleton'></div><div class='loading-skeleton'></div>";}
+async function loadForecast(lat,lon,locationName=null,{updateUrl=true}={}){
+showLoading();
+try{const r=await fetch("/api/forecast?latitude="+lat+"&longitude="+lon);if(!r.ok)throw 0;currentForecast=await r.json();const name=locationName||await reverseGeocode(lat,lon);saveRecent(name,lat,lon);
+if(updateUrl)history.replaceState(null,"","?lat="+lat.toFixed(4)+"&lon="+lon.toFixed(4));
+loadAlerts(lat,lon);document.getElementById("location").textContent=name;document.getElementById("coordinates").textContent=lat.toFixed(4)+", "+lon.toFixed(4);
+document.getElementById("status").textContent="Forecast for "+(currentForecast.timezone||"local time");
+const current=currentForecast.hourly[0],info=weatherInfo(current.weather_code);document.getElementById("current-temp").textContent=Math.round(current.temperature)+"°";document.getElementById("feels-like").textContent=Math.round(current.apparent_temperature)+"°";document.getElementById("current-condition").textContent=info[1]+" "+info[0];
+marker.bindPopup("<div class='weather-popup'><strong>"+name+"</strong><div class='popup-temp'>"+Math.round(current.temperature)+"°F</div><div>"+info[1]+" "+info[0]+"</div></div>").openPopup();
 renderChart();renderForecast();
-}catch{status.textContent="Unable to load forecast.";forecast.innerHTML="";}}
+}catch{document.getElementById("status").textContent="Unable to load forecast.";document.getElementById("forecast").innerHTML="";}}
 function renderForecast(){
 if(!currentForecast)return;const forecast=document.getElementById("forecast");forecast.innerHTML="";
-if(currentView==="daily"){
-const wrapper=document.createElement("div");wrapper.className="daily";
-currentForecast.daily.forEach((day,i)=>{const info=weatherInfo(day.weather_code),card=document.createElement("div");card.className="daily-card";
-const date=i===0?"Today":i===1?"Tomorrow":formatDay(day.date);
-card.innerHTML="<div class='daily-date'>"+date+"</div><div class='weather-icon'>"+info[1]+"</div><div><strong>"+info[0]+"</strong><div class='condition-pill'>Rain "+day.precipitation_probability+"%</div><div class='daily-detail'>UV "+day.uv_index_max.toFixed(0)+" · Wind "+Math.round(day.wind_speed_max)+" mph "+direction(day.wind_direction)+"</div></div><div class='daily-range'><span class='temp-high'>"+Math.round(day.temperature_max)+"°</span> / <span class='temp-low'>"+Math.round(day.temperature_min)+"°</span></div>";
-card.addEventListener("click",()=>toggleDay(index,wrapper));wrapper.appendChild(card);});forecast.appendChild(wrapper);return;}
-let previousDate=null;
-currentForecast.hourly.forEach(hour=>{const key=hour.time.slice(0,10);if(key!==previousDate){const h=document.createElement("div");h.className="day-header";h.textContent=formatDay(key);forecast.appendChild(h);previousDate=key;}
-const info=weatherInfo(hour.weather_code),row=document.createElement("div");row.className="hour";
-row.innerHTML="<div class='weather-icon'>"+info[1]+"</div><div><div class='hour-time'>"+formatHour(hour.time)+" · "+info[0]+"</div><div class='hour-detail'>Feels "+Math.round(hour.apparent_temperature)+"° · Rain "+hour.precipitation+" mm · Wind "+Math.round(hour.wind_speed)+" mph "+direction(hour.wind_direction)+"</div></div><div class='hour-temp'>"+Math.round(hour.temperature)+"°</div>";
-forecast.appendChild(row);});}
-function renderChart(){if(!currentForecast)return;const points=currentForecast.hourly.slice(0,24),ctx=document.getElementById("temperature-chart");if(temperatureChart)temperatureChart.destroy();
-const gradient=ctx.getContext("2d").createLinearGradient(0,0,0,150);gradient.addColorStop(0,"rgba(59,130,246,.22)");gradient.addColorStop(1,"rgba(59,130,246,0)");temperatureChart=new Chart(ctx,{type:"line",data:{labels:points.map(p=>formatHour(p.time)),datasets:[{label:"Temperature",data:points.map(p=>p.temperature),tension:.3,pointRadius:3,fill:true,backgroundColor:gradient,borderColor:"rgba(37,99,235,.9)"}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const p=points[ctx.dataIndex],info=weatherInfo(p.weather_code);return [p.temperature+"°F · "+info[0],"Rain "+p.precipitation+" mm · Feels "+p.apparent_temperature+"°"];}}}},scales:{y:{ticks:{callback:v=>v+"°"}}}}});}
+if(currentView==="daily"){const wrapper=document.createElement("div");wrapper.className="daily";currentForecast.daily.forEach((day,i)=>{const info=weatherInfo(day.weather_code),card=document.createElement("div");card.className="daily-card";const date=i===0?"Today":i===1?"Tomorrow":formatDay(day.date);
+card.innerHTML="<div class='daily-date'>"+date+"</div><div class='weather-icon'>"+info[1]+"</div><div><strong>"+info[0]+"</strong><div class='condition-pill'>Rain "+day.precipitation_probability+"%</div><div class='daily-detail'>UV "+day.uv_index_max.toFixed(0)+" · Wind "+Math.round(day.wind_speed_max)+" mph "+direction(day.wind_direction_max)+"</div></div><div class='daily-range'><span class='temp-high'>"+Math.round(day.temperature_max)+"°</span> / <span class='temp-low'>"+Math.round(day.temperature_min)+"°</span></div>";
+card.addEventListener("click",()=>toggleDay(i,wrapper));wrapper.appendChild(card);});forecast.appendChild(wrapper);return;}
+let previousDate=null,peakByDate={};currentForecast.hourly.forEach(h=>{const d=h.time.slice(0,10);peakByDate[d]=Math.max(peakByDate[d]??-Infinity,h.temperature);});
+currentForecast.hourly.forEach((hour,index)=>{const key=hour.time.slice(0,10);if(key!==previousDate){const h=document.createElement("div");h.className="day-header";h.textContent=formatDay(key);forecast.appendChild(h);previousDate=key;}
+const info=weatherInfo(hour.weather_code),row=document.createElement("div");row.className="hour";row.dataset.time=hour.time;if(hour.temperature===peakByDate[key])row.classList.add("peak");
+row.innerHTML="<div class='weather-icon'>"+info[1]+"</div><div><div class='hour-time'>"+formatHour(hour.time)+" · "+info[0]+"</div><div class='hour-detail'>Feels "+Math.round(hour.apparent_temperature)+"° · Rain "+hour.precipitation+" mm · Wind "+Math.round(hour.wind_speed)+" mph "+direction(hour.wind_direction)+"</div></div><div class='hour-temp'>"+Math.round(hour.temperature)+"°</div>";forecast.appendChild(row);});}
+function metricConfig(){if(currentMetric==="precipitation")return{label:"Precipitation Chance",unit:"%",data:currentForecast.hourly.slice(0,24).map(p=>p.precipitation_probability??0),tooltip:p=>"Rain chance "+p.precipitation_probability+"%"};if(currentMetric==="wind")return{label:"Wind Speed",unit:" mph",data:currentForecast.hourly.slice(0,24).map(p=>p.wind_speed??0),tooltip:p=>"Wind "+Math.round(p.wind_speed)+" mph"};return{label:"Temperature",unit:"°F",data:currentForecast.hourly.slice(0,24).map(p=>p.temperature),tooltip:p=>{const info=weatherInfo(p.weather_code);return p.temperature+"°F · "+info[0]+" · Rain "+p.precipitation+" mm";}};}
+function renderChart(){if(!currentForecast)return;const points=currentForecast.hourly.slice(0,24),ctx=document.getElementById("temperature-chart"),cfg=metricConfig();if(temperatureChart)temperatureChart.destroy();const gradient=ctx.getContext("2d").createLinearGradient(0,0,0,165);gradient.addColorStop(0,"rgba(59,130,246,.22)");gradient.addColorStop(1,"rgba(59,130,246,0)");
+temperatureChart=new Chart(ctx,{type:"line",data:{labels:points.map(p=>formatHour(p.time)),datasets:[{label:cfg.label,data:cfg.data,tension:.3,pointRadius:3,pointHoverRadius:6,fill:true,backgroundColor:gradient,borderColor:"rgba(37,99,235,.9)"}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},onHover:(event,elements)=>{document.querySelectorAll(".hour.chart-highlight").forEach(x=>x.classList.remove("chart-highlight"));if(elements.length){const row=document.querySelector(".hour[data-time='"+points[elements[0].index].time+"']");if(row){row.classList.add("chart-highlight");row.scrollIntoView({block:"nearest"});}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:context=>cfg.tooltip(points[context.dataIndex])}}},scales:{y:{ticks:{callback:v=>v+cfg.unit}}}}});}
+function setMetric(metric){currentMetric=metric;document.querySelectorAll(".metric-tabs button").forEach(b=>b.classList.toggle("active",b.dataset.metric===metric));renderChart();}
 async function loadAlerts(lat,lon){const banner=document.getElementById("alert-banner");try{const r=await fetch("/api/alerts?latitude="+lat+"&longitude="+lon);if(!r.ok)throw 0;const alerts=await r.json();if(!alerts.length){banner.style.display="none";return;}const a=alerts[0];banner.innerHTML="<strong>⚠ "+a.event+"</strong>"+(a.headline||"Active weather alert");banner.style.display="block";}catch{banner.style.display="none";}}
 function saveRecent(name,lat,lon){let items=JSON.parse(localStorage.getItem("weatherRecent")||"[]");items=[{name,lat,lon},...items.filter(x=>x.name!==name)].slice(0,5);localStorage.setItem("weatherRecent",JSON.stringify(items));renderRecent();}
-function renderRecent(){const el=document.getElementById("recent");el.innerHTML="";(JSON.parse(localStorage.getItem("weatherRecent")||"[]")).forEach(x=>{const b=document.createElement("button");b.textContent=x.name;b.onclick=()=>{map.flyTo([x.lat,x.lon],10);marker.setLatLng([x.lat,x.lon]);loadForecast(x.lat,x.lon,x.name);};el.appendChild(b);});}
-async function toggleDay(index,wrapper){if(expandedDay===index){expandedDay=null;renderForecast();return;}expandedDay=index;const day=currentForecast.daily[index];const hours=currentForecast.hourly.filter(h=>h.time.slice(0,10)===day.date);const detail=document.createElement("div");detail.className="daily-expanded";detail.innerHTML="Sunrise: "+new Date(day.sunrise).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+" · Sunset: "+new Date(day.sunset).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+" · Precipitation: "+day.precipitation+" mm";wrapper.children[index].after(detail);}
-async function searchLocations(){
-const input=document.getElementById("search-input"),results=document.getElementById("search-results"),query=input.value.trim();if(query.length<2)return;
-results.style.display="block";results.innerHTML="<div class='search-result'>Searching...</div>";
-try{const r=await fetch("/api/geocode/search?q="+encodeURIComponent(query));if(!r.ok)throw 0;const places=await r.json();results.innerHTML="";
-if(!places.length){results.innerHTML="<div class='search-result'>No locations found.</div>";return;}
-places.forEach(place=>{const item=document.createElement("div");item.className="search-result";item.textContent=place.display_name;item.addEventListener("click",()=>{const lat=Number(place.lat),lon=Number(place.lon),name=place.display_name.split(",").slice(0,2).join(",");map.flyTo([lat,lon],10);marker.setLatLng([lat,lon]);results.style.display="none";loadForecast(lat,lon,name);});results.appendChild(item);});}
-catch{results.innerHTML="<div class='search-result'>Search unavailable.</div>";}}
-async function toggleRadar(){
-const credit=document.getElementById("radar-credit");if(radarLayer){map.removeLayer(radarLayer);radarLayer=null;credit.style.display="none";return;}
-try{const r=await fetch("https://api.rainviewer.com/public/weather-maps.json");if(!r.ok)throw 0;const data=await r.json(),frames=data.radar&&data.radar.past;if(!frames||!frames.length)throw 0;
-radarFrames=frames;radarHost=data.host;const frame=frames[frames.length-1],url=data.host+frame.path+"/256/{z}/{x}/{y}/2/1_1.png";
-radarLayer=L.tileLayer(url,{opacity:.55,maxZoom:7,attribution:"Weather radar by RainViewer"}).addTo(map);credit.style.display="block";document.getElementById("radar-timeline").style.display="block";document.getElementById("radar-slider").max=radarFrames.length-1;document.getElementById("radar-slider").value=radarFrames.length-1;updateRadarFrame(radarFrames.length-1,radarHost);}catch{alert("Radar is currently unavailable.");}}
+function renderRecent(){const el=document.getElementById("recent");el.innerHTML="";JSON.parse(localStorage.getItem("weatherRecent")||"[]").forEach(x=>{const b=document.createElement("button");b.textContent=x.name;b.onclick=()=>{map.flyTo([x.lat,x.lon],10);marker.setLatLng([x.lat,x.lon]);loadForecast(x.lat,x.lon,x.name);};el.appendChild(b);});}
+function toggleDay(index,wrapper){if(expandedDay===index){expandedDay=null;renderForecast();return;}expandedDay=index;const day=currentForecast.daily[index],hours=currentForecast.hourly.filter(h=>h.time.slice(0,10)===day.date),detail=document.createElement("div");detail.className="daily-expanded";detail.innerHTML="<strong>"+formatDay(day.date)+"</strong> · Sunrise "+formatDateTime(day.sunrise)+" · Sunset "+formatDateTime(day.sunset)+" · Precipitation "+day.precipitation+" mm · "+hours.length+" hourly observations";wrapper.children[index].after(detail);}
+async function searchLocations(){const input=document.getElementById("search-input"),results=document.getElementById("search-results"),query=input.value.trim();if(query.length<2)return;results.style.display="block";results.innerHTML="<div class='search-result'>Searching...</div>";try{const r=await fetch("/api/geocode/search?q="+encodeURIComponent(query));if(!r.ok)throw 0;const places=await r.json();results.innerHTML="";if(!places.length){results.innerHTML="<div class='search-result'>No locations found.</div>";return;}places.forEach(place=>{const item=document.createElement("div");item.className="search-result";item.textContent=place.display_name;item.addEventListener("click",()=>{const lat=Number(place.lat),lon=Number(place.lon),name=place.display_name.split(",").slice(0,2).join(",");map.flyTo([lat,lon],10);marker.setLatLng([lat,lon]);results.style.display="none";loadForecast(lat,lon,name);});results.appendChild(item);});}catch{results.innerHTML="<div class='search-result'>Search unavailable.</div>";}}
+function updateRadarFrame(index){if(!radarFrames.length)return;const frame=radarFrames[index];if(radarLayer)map.removeLayer(radarLayer);radarLayer=L.tileLayer(radarHost+frame.path+"/256/{z}/{x}/{y}/2/1_1.png",{opacity:.55,maxZoom:7,attribution:"Weather radar by RainViewer"}).addTo(map);document.getElementById("radar-time").textContent=new Date(frame.time*1000).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
+async function toggleRadar(){const credit=document.getElementById("radar-credit");if(radarLayer){map.removeLayer(radarLayer);radarLayer=null;credit.style.display="none";return;}try{const r=await fetch("https://api.rainviewer.com/public/weather-maps.json");if(!r.ok)throw 0;const data=await r.json(),frames=data.radar&&data.radar.past;if(!frames||!frames.length)throw 0;radarFrames=frames;radarHost=data.host;document.getElementById("radar-timeline").style.display="block";document.getElementById("radar-slider").max=frames.length-1;document.getElementById("radar-slider").value=frames.length-1;updateRadarFrame(frames.length-1);credit.style.display="block";}catch{alert("Radar is currently unavailable.");}}
 document.getElementById("search-button").addEventListener("click",searchLocations);
 document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocations();});
 document.getElementById("locate-button").addEventListener("click",()=>{if(!navigator.geolocation){alert("Your browser does not provide location access.");return;}navigator.geolocation.getCurrentPosition(p=>{const lat=p.coords.latitude,lon=p.coords.longitude;map.setView([lat,lon],10);marker.setLatLng([lat,lon]);loadForecast(lat,lon);},()=>alert("Unable to access your location."));});
 document.getElementById("radar-button").addEventListener("click",toggleRadar);
+document.getElementById("radar-slider").addEventListener("input",e=>updateRadarFrame(Number(e.target.value)));
+document.getElementById("radar-play").addEventListener("click",()=>{if(radarPlaying){clearInterval(radarTimer);radarPlaying=false;document.getElementById("radar-play").textContent="▶ Play";return;}if(!radarFrames.length)return;radarPlaying=true;document.getElementById("radar-play").textContent="⏸ Pause";let i=Number(document.getElementById("radar-slider").value);radarTimer=setInterval(()=>{i=(i+1)%radarFrames.length;document.getElementById("radar-slider").value=i;updateRadarFrame(i);},700);});
+document.getElementById("radar-close").addEventListener("click",()=>{document.getElementById("radar-timeline").style.display="none";if(radarTimer)clearInterval(radarTimer);radarPlaying=false;if(radarLayer){map.removeLayer(radarLayer);radarLayer=null;}document.getElementById("radar-credit").style.display="none";});
 document.getElementById("daily-tab").addEventListener("click",()=>{currentView="daily";document.getElementById("daily-tab").classList.add("active");document.getElementById("hourly-tab").classList.remove("active");renderForecast();});
 document.getElementById("hourly-tab").addEventListener("click",()=>{currentView="hourly";document.getElementById("hourly-tab").classList.add("active");document.getElementById("daily-tab").classList.remove("active");renderForecast();});
+document.querySelectorAll(".metric-tabs button").forEach(b=>b.addEventListener("click",()=>setMetric(b.dataset.metric)));
 map.on("click",e=>{const lat=e.latlng.lat,lon=e.latlng.lng;marker.setLatLng([lat,lon]);loadForecast(lat,lon);});
-loadForecast(30.0799,-95.4172,"Spring, TX");
-</script>
-</body>
-</html>
-function updateRadarFrame(index,host){if(!radarFrames.length)return;const frame=radarFrames[index];if(radarLayer)map.removeLayer(radarLayer);radarLayer=L.tileLayer(host+frame.path+"/256/{z}/{x}/{y}/2/1_1.png",{opacity:.55,maxZoom:7,attribution:"Weather radar by RainViewer"}).addTo(map);document.getElementById("radar-time").textContent=new Date(frame.time*1000).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
-document.getElementById("radar-slider").addEventListener("input",e=>{const i=Number(e.target.value);updateRadarFrame(i,radarHost);});
-document.getElementById("radar-play").addEventListener("click",()=>{if(radarPlaying){clearInterval(radarTimer);radarPlaying=false;document.getElementById("radar-play").textContent="▶ Play";return;}if(!radarFrames.length)return;radarPlaying=true;document.getElementById("radar-play").textContent="⏸ Pause";let i=Number(document.getElementById("radar-slider").value);radarTimer=setInterval(()=>{i=(i+1)%radarFrames.length;document.getElementById("radar-slider").value=i;updateRadarFrame(i,"https://tilecache.rainviewer.com");},700);}
-);
-document.getElementById("radar-close").addEventListener("click",()=>{document.getElementById("radar-timeline").style.display="none";if(radarTimer)clearInterval(radarTimer);radarPlaying=false;if(radarLayer){map.removeLayer(radarLayer);radarLayer=null;}document.getElementById("radar-credit").style.display="none";});
+window.addEventListener("popstate",()=>loadFromUrl());
+function loadFromUrl(){const p=new URLSearchParams(location.search),lat=Number(p.get("lat")),lon=Number(p.get("lon"));if(Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180){map.setView([lat,lon],10);marker.setLatLng([lat,lon]);loadForecast(lat,lon,null,{updateUrl:false});return false;}return true;}
+document.getElementById("share-button").addEventListener("click",async()=>{const url=location.href;if(navigator.share){try{await navigator.share({title:"Weather Map",url});return;}catch{}}try{await navigator.clipboard.writeText(url);const b=document.getElementById("share-button"),old=b.textContent;b.textContent="Copied!";setTimeout(()=>b.textContent=old,1200);}catch{prompt("Copy this forecast link:",url);}});
 renderRecent();
+if(loadFromUrl()){
+if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{const lat=p.coords.latitude,lon=p.coords.longitude;map.setView([lat,lon],10);marker.setLatLng([lat,lon]);loadForecast(lat,lon);},()=>loadForecast(DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon,DEFAULT_LOCATION.name));}else loadForecast(DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon,DEFAULT_LOCATION.name);
+}
+</script>
+</body></html>
