@@ -96,10 +96,18 @@ def test_alerts_returns_point_alerts():
         ]
     }
 
-    with patch("app.requests.get") as mock_get:
-        mock_get.return_value.raise_for_status.return_value = None
-        mock_get.return_value.json.return_value = mock_data
-
+    with patch("app.alert_service.get_point_alerts", return_value=[
+        {
+            "id": "alert-1",
+            "event": "Heat Advisory",
+            "severity": "Moderate",
+            "urgency": "Expected",
+            "headline": "Heat advisory in effect",
+            "description": "Take precautions.",
+            "expires": "2026-10-06T20:00:00Z",
+            "area": "Harris County",
+        }
+    ]):
         response = client.get(
             "/api/alerts?latitude=29.7604&longitude=-95.3698"
         )
