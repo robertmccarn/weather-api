@@ -74,7 +74,7 @@ const map=L.map("map").setView([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
 const pulseIcon=L.divIcon({className:"custom-map-marker",html:"<div class=\"marker-pin\"></div><div class=\"marker-pulse\"></div>",iconSize:[20,20],iconAnchor:[10,10]});
 let marker=L.marker([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],{icon:pulseIcon}).addTo(map);
-let radarLayer=null,currentForecast=null,currentObservation=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null,radarLayers=[null,null],radarActiveLayer=0,radarTransitionToken=0;
+let radarLayer=null,currentForecast=null,currentObservation=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null,radarLayers=[],radarLoaded=[],radarActiveLayer=0,radarTransitionToken=0,radarAnimationId=null,radarLoadingComplete=false;
 let routeMode=false,routeOrigin=null,routeDestination=null,routeLine=null,routeMarkers=[],routeWeatherMarkers=[];
 const weatherDescriptions={0:["Clear sky","☀️"],1:["Mainly clear","🌤️"],2:["Partly cloudy","⛅"],3:["Overcast","☁️"],45:["Fog","🌫️"],48:["Rime fog","🌫️"],51:["Light drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy drizzle","🌧️"],61:["Light rain","🌦️"],63:["Rain","🌧️"],65:["Heavy rain","🌧️"],71:["Light snow","🌨️"],73:["Snow","❄️"],75:["Heavy snow","❄️"],80:["Light showers","🌦️"],81:["Showers","🌧️"],82:["Heavy showers","⛈️"],95:["Thunderstorm","⛈️"],96:["Thunderstorm with hail","⛈️"],99:["Severe thunderstorm","⛈️"]};
 function weatherInfo(code){return weatherDescriptions[code]||["Unknown","🌡️"];}
@@ -229,58 +229,86 @@ return RADAR_TILE_BASE+"ridge::USCOMP-N0Q-"+radarTimestamp(iso)+"/{z}/{x}/{y}.pn
 function formatRadarTime(iso){
 return new Date(iso).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 }
-function createRadarLayer(url){
-return L.tileLayer(url,{
+function updateRadarLoadingState(){
+const loaded=radarLoaded.filter(Boolean).length;
+const label=document.getElementById("radar-time");
+if(!radarLoadingComplete){
+label.textContent="Loading radar "+loaded+"/"+radarFrames.length+"…";
+}else{
+label.textContent=formatRadarTime(radarFrames[radarActiveLayer])+" local";
+}
+}
+function ensureRadarLayers(){
+if(radarLayers.length||!radarFrames.length)return;
+radarLoaded=radarFrames.map(()=>false);
+radarLoadingComplete=false;
+radarLayers=radarFrames.map((frame,index)=>{
+const layer=L.tileLayer(radarTileUrl(frame),{
 opacity:0,
 zIndex:450,
 tileSize:256,
 updateWhenIdle:false,
 keepBuffer:1,
 attribution:"Radar: IEM / NWS NEXRAD"
-}).addTo(map);
+});
+layer.once("load",()=>{
+radarLoaded[index]=true;
+if(radarLoaded.every(Boolean)){
+radarLoadingComplete=true;
+updateRadarLoadingState();
+updateRadarFrame(radarActiveLayer,false);
+}else{
+updateRadarLoadingState();
 }
-function ensureRadarLayers(){
-if(radarLayers[0])return;
-const initial=radarFrames[radarFrames.length-1]||new Date(Date.now()-5*60*1000).toISOString();
-radarLayers=[createRadarLayer(radarTileUrl(initial)),createRadarLayer(radarTileUrl(initial))];
+});
+layer.addTo(map);
+return layer;
+});
+updateRadarLoadingState();
 }
-function animateRadarTransition(incoming,outgoing,targetOpacity){
-const start=performance.now(),duration=380;
+function animateRadarTransition(fromIndex,toIndex,targetOpacity){
+if(radarAnimationId)cancelAnimationFrame(radarAnimationId);
+const outgoing=radarLayers[fromIndex];
+const incoming=radarLayers[toIndex];
+const start=performance.now(),duration=360,token=radarTransitionToken;
 function step(now){
+if(token!==radarTransitionToken)return;
 const progress=Math.min(1,(now-start)/duration);
 const eased=1-Math.pow(1-progress,3);
-incoming.setOpacity(targetOpacity*eased);
-if(outgoing)outgoing.setOpacity(targetOpacity*(1-eased));
-if(progress<1)requestAnimationFrame(step);
-else if(outgoing)outgoing.setOpacity(0);
+if(outgoing&&fromIndex!==toIndex)outgoing.setOpacity(targetOpacity*(1-eased));
+if(incoming)incoming.setOpacity(targetOpacity*eased);
+if(progress<1){
+radarAnimationId=requestAnimationFrame(step);
+}else{
+if(outgoing&&fromIndex!==toIndex)outgoing.setOpacity(0);
+if(incoming)incoming.setOpacity(targetOpacity);
+radarActiveLayer=toIndex;
+radarAnimationId=null;
+updateRadarLoadingState();
 }
-requestAnimationFrame(step);
+}
+radarAnimationId=requestAnimationFrame(step);
 }
 function updateRadarFrame(index,animate=true){
-if(!radarFrames.length)return;
-const frame=radarFrames[index];
-ensureRadarLayers();
-const incomingIndex=1-radarActiveLayer;
-const incoming=radarLayers[incomingIndex];
-const outgoing=radarLayers[radarActiveLayer];
+if(!radarFrames.length||!radarLayers.length)return;
+const clamped=Math.max(0,Math.min(index,radarFrames.length-1));
+const target=radarLayers[clamped];
+if(!target)return;
 radarTransitionToken++;
-const token=radarTransitionToken;
-incoming.setOpacity(0);
-incoming.setUrl(radarTileUrl(frame),true);
-const startTransition=()=>{
-if(token!==radarTransitionToken)return;
-if(animate)animateRadarTransition(incoming,outgoing,radarOpacity);
-else{
-incoming.setOpacity(radarOpacity);
-if(outgoing)outgoing.setOpacity(0);
+if(radarAnimationId){cancelAnimationFrame(radarAnimationId);radarAnimationId=null;}
+radarLayers.forEach((layer,layerIndex)=>{
+if(layerIndex!==radarActiveLayer&&layer)layer.setOpacity(0);
+});
+if(animate&&radarLoadingComplete&&clamped!==radarActiveLayer){
+animateRadarTransition(radarActiveLayer,clamped,radarOpacity);
+}else{
+radarLayers.forEach((layer,layerIndex)=>{
+if(layer)layer.setOpacity(layerIndex===clamped?radarOpacity:0);
+});
+radarActiveLayer=clamped;
+updateRadarLoadingState();
 }
-radarActiveLayer=incomingIndex;
-radarLayer=radarLayers[radarActiveLayer];
-document.getElementById("radar-time").textContent=formatRadarTime(frame)+" local";
-};
-incoming.once("load",startTransition);
-setTimeout(startTransition,1400);
-document.getElementById("radar-slider").value=index;
+document.getElementById("radar-slider").value=clamped;
 }
 function stopRadarPlayback(){
 if(radarTimer){clearInterval(radarTimer);radarTimer=null;}
@@ -290,7 +318,7 @@ document.getElementById("radar-play").setAttribute("aria-label","Play radar anim
 }
 function startRadarPlayback(){
 if(radarPlaying){stopRadarPlayback();return;}
-if(!radarFrames.length)return;
+if(!radarFrames.length||!radarLoadingComplete)return;
 radarPlaying=true;
 document.getElementById("radar-play").textContent="⏸";
 document.getElementById("radar-play").setAttribute("aria-label","Pause radar animation");
@@ -298,33 +326,36 @@ let index=Number(document.getElementById("radar-slider").value);
 radarTimer=setInterval(()=>{
 index=(index+1)%radarFrames.length;
 updateRadarFrame(index,true);
-},1100);
+},850);
 }
 function closeRadarLayers(){
 radarTransitionToken++;
 stopRadarPlayback();
+if(radarAnimationId){cancelAnimationFrame(radarAnimationId);radarAnimationId=null;}
 radarLayers.forEach(layer=>{if(layer)map.removeLayer(layer);});
-radarLayers=[null,null];
+radarLayers=[];
+radarLoaded=[];
 radarActiveLayer=0;
-radarLayer=null;
+radarLoadingComplete=false;
 }
 function toggleRadar(){
 const credit=document.getElementById("radar-credit");
-if(radarLayers[0]){
+if(radarLayers.length){
 closeRadarLayers();
 credit.style.display="none";
 document.getElementById("radar-timeline").style.display="none";
-document.getElementById("radar-button").classList.remove("route-active");document.getElementById("radar-legend").style.display="none";
+document.getElementById("radar-button").classList.remove("route-active");
+document.getElementById("radar-legend").style.display="none";
 return;
 }
 radarFrames=radarFrameTimes();
 ensureRadarLayers();
 document.getElementById("radar-timeline").style.display="block";
 credit.style.display="block";
-document.getElementById("radar-button").classList.add("route-active");document.getElementById("radar-legend").style.display="block";
-updateRadarFrame(radarFrames.length-1,false);
-}
-document.getElementById("search-button").addEventListener("click",searchLocations);
+document.getElementById("radar-button").classList.add("route-active");
+document.getElementById("radar-legend").style.display="block";
+document.getElementById("radar-slider").value=radarFrames.length-1;
+}document.getElementById("search-button").addEventListener("click",searchLocations);
 document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocations();});
 document.getElementById("locate-button").addEventListener("click",()=>{if(!navigator.geolocation){alert("Your browser does not provide location access.");return;}navigator.geolocation.getCurrentPosition(p=>{const lat=p.coords.latitude,lon=p.coords.longitude;map.setView([lat,lon],10);marker.setLatLng([lat,lon]);loadForecast(lat,lon);},()=>alert("Unable to access your location."));});
 document.getElementById("radar-button").addEventListener("click",toggleRadar);
@@ -338,7 +369,7 @@ document.getElementById("nav-locations").addEventListener("click",()=>{document.
 document.getElementById("route-button").addEventListener("click",()=>setRouteMode(!routeMode));
 document.getElementById("route-clear").addEventListener("click",clearRoute);
 document.getElementById("radar-play").addEventListener("click",startRadarPlayback);document.getElementById("radar-slider").addEventListener("input",e=>{stopRadarPlayback();updateRadarFrame(Number(e.target.value),true);});document.getElementById("radar-close").addEventListener("click",()=>{closeRadarLayers();document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");document.getElementById("radar-legend").style.display="none";});
-document.getElementById("radar-opacity").addEventListener("input",e=>{radarOpacity=Number(e.target.value)/100;radarLayers.forEach(layer=>{if(layer)layer.setOpacity(radarOpacity);});});
+document.getElementById("radar-opacity").addEventListener("input",e=>{radarOpacity=Number(e.target.value)/100;radarLayers.forEach((layer,layerIndex)=>{if(layer)layer.setOpacity(layerIndex===radarActiveLayer?radarOpacity:0);});});
 document.getElementById("radar-opacity-down").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.max(20,Number(input.value)-5);input.dispatchEvent(new Event("input"));});
 document.getElementById("radar-opacity-up").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.min(80,Number(input.value)+5);input.dispatchEvent(new Event("input"));});
 document.getElementById("daily-tab").addEventListener("click",()=>{currentView="daily";document.getElementById("daily-tab").classList.add("active");document.getElementById("hourly-tab").classList.remove("active");renderForecast();});
