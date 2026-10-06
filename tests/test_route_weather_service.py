@@ -18,7 +18,7 @@ def test_route_weather_matches_each_sample_to_nearest_forecast():
         ],
     }
 
-    weather.get_weather_points.return_value = [
+    weather.get_weather_series.return_value = [[
         WeatherPoint(
             latitude=30.0,
             longitude=-95.0,
@@ -26,18 +26,56 @@ def test_route_weather_matches_each_sample_to_nearest_forecast():
             temperature=80,
         ),
         WeatherPoint(
+            latitude=30.0,
+            longitude=-95.0,
+            timestamp="2026-10-06T11:00:00",
+            temperature=81,
+        ),
+        WeatherPoint(
+            latitude=30.0,
+            longitude=-95.0,
+            timestamp="2026-10-06T12:00:00",
+            temperature=82,
+        ),
+    ], [
+        WeatherPoint(
             latitude=30.5,
             longitude=-94.5,
             timestamp="2026-10-06T11:00:00",
             temperature=82,
         ),
         WeatherPoint(
+            latitude=30.5,
+            longitude=-94.5,
+            timestamp="2026-10-06T12:00:00",
+            temperature=83,
+        ),
+        WeatherPoint(
+            latitude=30.5,
+            longitude=-94.5,
+            timestamp="2026-10-06T13:00:00",
+            temperature=84,
+        ),
+    ], [
+        WeatherPoint(
             latitude=31.0,
             longitude=-94.0,
             timestamp="2026-10-06T12:00:00",
             temperature=85,
         ),
-    ]
+        WeatherPoint(
+            latitude=31.0,
+            longitude=-94.0,
+            timestamp="2026-10-06T13:00:00",
+            temperature=86,
+        ),
+        WeatherPoint(
+            latitude=31.0,
+            longitude=-94.0,
+            timestamp="2026-10-06T14:00:00",
+            temperature=87,
+        ),
+    ]] 
 
     service = RouteWeatherService(routing, weather)
     result = service.get_route_weather(
