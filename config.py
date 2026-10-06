@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
@@ -9,6 +10,9 @@ API_URL = os.getenv(
     "OPEN_METEO_API_URL",
     "https://api.open-meteo.com/v1/forecast",
 )
+
+
+REFRESH_HOURS = int(os.getenv("WEATHER_REFRESH_HOURS", "24"))
 
 
 LOCATIONS = [

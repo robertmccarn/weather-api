@@ -1,4 +1,8 @@
 import logging
+from datetime import datetime, timedelta
+
+from config import REFRESH_HOURS
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +35,23 @@ class WeatherIngestion:
                 location["longitude"],
             )
 
-            location_id = self.database.get_location_id(location["name"])
+            location_id = self.database.get_location_id(
+                location["name"]
+            )
 
-            last_loaded_timestamp = self.database.get_watermark(location_id)
+            last_loaded_timestamp = self.database.get_watermark(
+                location_id
+            )
+
+            refresh_cutoff = None
+
+            if last_loaded_timestamp is not None:
+                last_loaded = datetime.fromisoformat(
+                    last_loaded_timestamp
+                )
+                refresh_cutoff = (
+                    last_loaded - timedelta(hours=REFRESH_HOURS)
+                )
 
             data = self.client.get_forecast(
                 latitude=location["latitude"],
@@ -55,8 +73,10 @@ class WeatherIngestion:
                 precipitation,
                 humidity,
             ):
-                if last_loaded_timestamp is not None:
-                    if time <= last_loaded_timestamp:
+                if refresh_cutoff is not None:
+                    current_time = datetime.fromisoformat(time)
+
+                    if current_time < refresh_cutoff:
                         continue
 
                 self.database.save_weather(
