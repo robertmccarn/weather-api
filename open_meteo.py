@@ -28,6 +28,21 @@ class OpenMeteoClient:
         "wind_direction_10m_dominant"
     )
 
+    REQUIRED_HOURLY_FIELDS = (
+        "time",
+        "temperature_2m",
+        "precipitation",
+        "relative_humidity_2m",
+    )
+
+    REQUIRED_DAILY_FIELDS = (
+        "time",
+        "weather_code",
+        "temperature_2m_max",
+        "temperature_2m_min",
+        "precipitation_sum",
+    )
+
     def _build_params(self, latitudes, longitudes):
         return {
             "latitude": ",".join(str(value) for value in latitudes),
@@ -124,30 +139,42 @@ class OpenMeteoClient:
 
         return forecasts
 
-    def validate_response(self, data):
-        if "hourly" not in data:
-            raise ValueError("API response is missing 'hourly'")
+    @staticmethod
+    def _validate_series(data: dict, section: str, required_fields: tuple[str, ...]):
+        if section not in data:
+            raise ValueError(f"API response is missing '{section}'")
 
-        required_fields = [
-            "time",
-            "temperature_2m",
-            "precipitation",
-            "relative_humidity_2m",
-        ]
+        values = data[section]
 
         for field in required_fields:
-            if field not in data["hourly"]:
+            if field not in values:
                 raise ValueError(
-                    f"API response is missing hourly field: {field}"
+                    f"API response is missing {section} field: {field}"
                 )
 
         field_lengths = {
-            field: len(data["hourly"][field])
+            field: len(values[field])
             for field in required_fields
         }
 
         if len(set(field_lengths.values())) != 1:
             raise ValueError(
-                "Hourly fields must contain the same number of records: "
-                f"{field_lengths}"
+                f"{section.capitalize()} fields must contain the same number "
+                f"of records: {field_lengths}"
             )
+
+    def validate_response(self, data):
+        if not isinstance(data, dict):
+            raise ValueError("API response must be an object.")
+
+        self._validate_series(
+            data,
+            "hourly",
+            self.REQUIRED_HOURLY_FIELDS,
+        )
+
+        self._validate_series(
+            data,
+            "daily",
+            self.REQUIRED_DAILY_FIELDS,
+        )
