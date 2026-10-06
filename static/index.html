@@ -197,24 +197,30 @@ version:"1.1.1",
 attribution:"Radar: Iowa Environmental Mesonet / NWS NEXRAD"
 }).addTo(map);
 }
-if(radarTransitionTimer){clearTimeout(radarTransitionTimer);radarTransitionTimer=null;}\nradarLayer.setOpacity(0);\nradarLayer.setParams({time:frame});\nradarTransitionTimer=setTimeout(()=>{if(radarLayer){radarLayer.setOpacity(radarOpacity);}},40);\ndocument.getElementById("radar-time").textContent=formatRadarTime(frame)+" UTC";
+if(radarTransitionTimer){clearTimeout(radarTransitionTimer);radarTransitionTimer=null;}
+radarLayer.setOpacity(0);
+radarLayer.setParams({time:frame});
+radarTransitionTimer=setTimeout(()=>{if(radarLayer){radarLayer.setOpacity(radarOpacity);}},40);
+document.getElementById("radar-time").textContent=formatRadarTime(frame)+" UTC";
 document.getElementById("radar-slider").value=index;
 }
 function stopRadarPlayback(){
 if(radarTimer){clearInterval(radarTimer);radarTimer=null;}
 radarPlaying=false;
-document.getElementById("radar-play").textContent="▶";\ndocument.getElementById("radar-play").setAttribute("aria-label","Play radar animation");
+document.getElementById("radar-play").textContent="▶";
+document.getElementById("radar-play").setAttribute("aria-label","Play radar animation");
 }
 function startRadarPlayback(){
 if(radarPlaying){stopRadarPlayback();return;}
 if(!radarFrames.length)return;
 radarPlaying=true;
-document.getElementById("radar-play").textContent="⏸";\ndocument.getElementById("radar-play").setAttribute("aria-label","Pause radar animation");
+document.getElementById("radar-play").textContent="⏸";
+document.getElementById("radar-play").setAttribute("aria-label","Pause radar animation");
 let index=Number(document.getElementById("radar-slider").value);
 radarTimer=setInterval(()=>{
 index=(index+1)%radarFrames.length;
 updateRadarFrame(index);
-},600);
+},700);
 }
 function toggleRadar(){
 const credit=document.getElementById("radar-credit");
