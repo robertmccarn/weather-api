@@ -9,15 +9,15 @@
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0}
 body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef2f7;color:#172033;overflow:hidden}
-header{height:76px;padding:16px 24px;background:#172033;color:white}
-header h1{margin:0 0 2px;font-size:22px} header p{margin:0;color:#cbd5e1;font-size:13px}
-main{display:grid;grid-template-columns:minmax(0,1fr) 380px;width:100vw;height:calc(100vh - 76px);overflow:hidden}
+header{height:64px;padding:12px 20px;background:#172033;color:white;display:flex;align-items:center;justify-content:space-between}
+header h1{margin:0;font-size:20px} header p{margin:2px 0 0;color:#cbd5e1;font-size:12px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 360px;width:100vw;height:calc(100vh - 64px);overflow:hidden}
 .map-wrap{position:relative;min-width:0;min-height:0}
 #map{height:100%;width:100%}
-.map-controls{position:absolute;z-index:1000;top:12px;left:12px;right:12px;display:flex;gap:8px;max-width:720px;flex-wrap:wrap}
-.search-box{flex:1 1 360px;display:flex;background:white;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden;min-width:220px}
+.map-controls{position:absolute;z-index:1000;top:10px;left:10px;right:10px;display:flex;gap:6px;max-width:760px;flex-wrap:wrap}
+.search-box{flex:1 1 320px;display:flex;background:white;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,.16);overflow:hidden;min-width:220px}
 .search-box input{min-width:0;flex:1;border:0;padding:11px 12px;font-size:14px;outline:none}
-button{border:0;border-radius:8px;padding:10px 13px;cursor:pointer;background:white;color:#172033;box-shadow:0 2px 8px rgba(0,0,0,.18);font-weight:600}
+button{border:0;border-radius:7px;padding:9px 11px;cursor:pointer;background:white;color:#172033;box-shadow:0 2px 8px rgba(0,0,0,.16);font-weight:600;font-size:12px}
 button:hover{background:#f1f5f9}
 .route-active{background:#172033;color:white}.route-active:hover{background:#26344d}
 .route-controls{position:absolute;z-index:1000;top:58px;left:12px;background:rgba(255,255,255,.96);padding:10px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);display:none;max-width:360px;font-size:12px;color:#475569}
@@ -27,29 +27,29 @@ button:hover{background:#f1f5f9}
 .search-results{position:absolute;top:50px;left:0;width:min(500px,calc(100% - 100px));background:white;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,.2);overflow:hidden;display:none}
 .search-result{padding:10px 12px;border-bottom:1px solid #e5e7eb;cursor:pointer;font-size:14px}
 .search-result:hover{background:#f8fafc}
-.panel{background:white;border-radius:0;padding:18px;min-height:0;overflow:hidden;display:flex;flex-direction:column;border-left:1px solid #dbe2ea}
+.panel{background:white;border-radius:0;padding:14px 16px;min-height:0;overflow:hidden;display:flex;flex-direction:column;border-left:1px solid #dbe2ea}
 .location-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-#location{margin:0;font-size:25px} #coordinates{color:#64748b;font-size:12px;margin-top:3px}
-#status{color:#64748b;font-size:13px;margin:7px 0 10px}
-.recent{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+#location{margin:0;font-size:21px} #coordinates{color:#64748b;font-size:12px;margin-top:3px}
+#status{color:#64748b;font-size:12px;margin:4px 0 8px}
+.recent{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 8px}
 .recent button{box-shadow:none;border:1px solid #dbe2ea;padding:5px 9px;font-size:12px}
-.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.metric{background:#f8fafc;border-radius:8px;padding:10px}.metric-label{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.metric-value{font-size:18px;font-weight:700;margin-top:3px}
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:9px}
+.metric{background:#f8fafc;border-radius:7px;padding:8px}.metric-label{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.metric-value{font-size:17px;font-weight:700;margin-top:2px}
 .alert-banner{display:none;margin-bottom:10px;padding:10px 12px;border-radius:8px;background:#fff4e5;border:1px solid #f59e0b;color:#7c2d12}.alert-banner strong{display:block}
-.tabs{display:flex;gap:6px;margin-bottom:8px}.tabs button{box-shadow:none;border:1px solid #dbe2ea;padding:8px 12px}.tabs button.active{background:#172033;color:white;border-color:#172033}
-.chart-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 6px}
+.tabs{display:flex;gap:4px;margin-bottom:6px}.tabs button{box-shadow:none;border:1px solid #dbe2ea;padding:6px 10px}.tabs button.active{background:#172033;color:white;border-color:#172033}
+.chart-tools{display:flex;justify-content:space-between;align-items:center;gap:6px;margin:0 0 4px}
 .metric-tabs{display:flex;gap:4px}.metric-tabs button{box-shadow:none;border:1px solid #dbe2ea;padding:5px 8px;font-size:11px}.metric-tabs button.active{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
-#chart-wrap{height:165px;margin-bottom:8px;position:relative}
+#chart-wrap{height:145px;margin-bottom:6px;position:relative}
 #forecast{min-height:0;overflow-y:auto;padding-right:4px}
 .day-header{font-weight:750;margin:15px 0 6px;color:#172033;position:sticky;top:0;background:white;padding:4px 0;z-index:2}
 .hour{display:grid;grid-template-columns:60px 1fr 55px;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid #edf0f3;transition:background .15s}
 .hour:hover,.hour.chart-highlight{background:#eff6ff}.weather-icon{font-size:23px;text-align:center}.hour-time{font-weight:650;font-size:13px}.hour-detail{color:#64748b;font-size:12px}.hour-temp{font-size:18px;font-weight:700;text-align:right}
 .hour.peak{background:#f8fafc}.hour.peak .hour-temp{font-weight:800;color:#1d4ed8}
-.daily{display:grid;gap:8px}.daily-card{display:grid;grid-template-columns:72px 42px 1fr auto;align-items:center;gap:8px;padding:11px 6px;border-bottom:1px solid #edf0f3;cursor:pointer}.daily-card:hover{background:#f8fafc}
+.daily{display:grid;gap:5px}.daily-card{display:grid;grid-template-columns:68px 34px 1fr auto;align-items:center;gap:6px;padding:9px 5px;border-bottom:1px solid #edf0f3;cursor:pointer}.daily-card:hover{background:#f8fafc}
 .daily-date{font-weight:700}.daily-range{font-weight:700}.daily-detail{color:#64748b;font-size:12px}.temp-high{color:#172033}.temp-low{color:#64748b}
 .weather-icon{font-size:23px}.condition-pill{display:inline-block;padding:2px 7px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:650;margin-top:3px}
 .daily-expanded{grid-column:1/-1;padding:8px 10px;color:#475569;font-size:12px;background:#f8fafc;border-radius:6px}.daily-expanded strong{color:#172033}
-.radar-timeline{position:absolute;z-index:1000;bottom:12px;left:12px;right:12px;background:rgba(255,255,255,.94);padding:10px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.18);display:none}.radar-timeline input{width:100%}.radar-buttons{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#475569}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
+.radar-timeline{position:absolute;z-index:1000;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,.96);padding:8px 10px;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,.16);display:none}.radar-timeline input{width:100%}.radar-buttons{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#475569}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
 .loading-skeleton{height:42px;border-radius:8px;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;margin-bottom:8px}
 @keyframes shimmer{to{background-position:-200% 0}}
 .leaflet-popup-content-wrapper{border-radius:10px}.weather-popup{min-width:150px}.weather-popup .popup-temp{font-size:22px;font-weight:800;margin:3px 0}
@@ -59,14 +59,14 @@ button:hover{background:#f1f5f9}
 <body>
 <header><h1>Weather Map</h1><p>Click the map, search for a place, or use your current location.</p></header>
 <main>
-<div class="map-wrap"><div id="map"></div><div class="map-controls"><div class="search-box"><input id="search-input" type="search" placeholder="Search a city or place..."><button id="search-button">Search</button></div><button id="locate-button" title="Use my location">My location</button><button id="radar-button" title="Toggle radar">Radar</button><button id="route-button" title="Plan weather along a driving route">Route</button><button id="share-button" title="Copy or share this forecast">Share</button><div id="search-results" class="search-results"></div></div><div id="route-controls" class="route-controls"><strong>Route weather</strong><span id="route-instructions">Click a starting point on the map.</span><div class="route-actions"><button id="route-clear">Clear</button></div></div><div id="route-summary" class="route-summary"></div><div id="radar-credit" class="radar-credit">Radar: IEM / NWS NEXRAD</div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><span id="radar-time">Current NEXRAD reflectivity</span><button id="radar-close">Close</button></div></div></div>
+<div class="map-wrap"><div id="map"></div><div class="map-controls"><div class="search-box"><input id="search-input" type="search" placeholder="Search a city or place..."><button id="search-button">Search</button></div><button id="locate-button" title="Use my location">My location</button><button id="radar-button" title="Toggle radar">Radar</button><button id="route-button" title="Plan weather along a driving route">Route</button><button id="share-button" title="Copy or share this forecast">Share</button><div id="search-results" class="search-results"></div></div><div id="route-controls" class="route-controls"><strong>Route weather</strong><span id="route-instructions">Click a starting point on the map.</span><div class="route-actions"><button id="route-clear">Clear</button></div></div><div id="route-summary" class="route-summary"></div><div id="radar-credit" class="radar-credit">Radar: IEM / NWS NEXRAD</div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><span id="radar-time">Current NEXRAD reflectivity</span><div style="display:flex;gap:5px"><button id="radar-opacity-down" title="Decrease radar opacity">−</button><button id="radar-opacity-up" title="Increase radar opacity">+</button><button id="radar-close">Close</button></div></div><div style="font-size:11px;color:#64748b;margin-top:5px">Radar opacity</div><input id="radar-opacity" type="range" min="20" max="80" value="55" step="5" aria-label="Radar opacity"></div></div>
 <section class="panel"><div class="location-title"><div><h2 id="location">Spring, TX</h2><div id="coordinates">30.0799, -95.4172</div></div></div><div id="alert-banner" class="alert-banner"></div><div id="status">Loading forecast...</div><div id="recent" class="recent"></div><div class="summary"><div class="metric"><div class="metric-label">Now</div><div class="metric-value" id="current-temp">--</div></div><div class="metric"><div class="metric-label">Feels like</div><div class="metric-value" id="feels-like">--</div></div><div class="metric"><div class="metric-label">Conditions</div><div class="metric-value" id="current-condition">--</div></div></div><div class="tabs"><button id="daily-tab" class="active">7-Day</button><button id="hourly-tab">Hourly</button></div><div class="chart-tools"><strong>Next 24 hours</strong><div class="metric-tabs"><button data-metric="temperature" class="active">Temp °F</button><button data-metric="precipitation">Rain %</button><button data-metric="wind">Wind mph</button></div></div><div id="chart-wrap"><canvas id="temperature-chart"></canvas></div><div id="forecast"></div></section>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script><script>const DEFAULT_LOCATION={lat:30.0799,lon:-95.4172,name:"Spring, TX"};
 const map=L.map("map").setView([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
 let marker=L.marker([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon]).addTo(map);
-let radarLayer=null,currentForecast=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature";
+let radarLayer=null,currentForecast=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.55;
 let routeMode=false,routeOrigin=null,routeDestination=null,routeLine=null,routeMarkers=[],routeWeatherMarkers=[];
 const weatherDescriptions={0:["Clear sky","☀️"],1:["Mainly clear","🌤️"],2:["Partly cloudy","⛅"],3:["Overcast","☁️"],45:["Fog","🌫️"],48:["Rime fog","🌫️"],51:["Light drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy drizzle","🌧️"],61:["Light rain","🌦️"],63:["Rain","🌧️"],65:["Heavy rain","🌧️"],71:["Light snow","🌨️"],73:["Snow","❄️"],75:["Heavy snow","❄️"],80:["Light showers","🌦️"],81:["Showers","🌧️"],82:["Heavy showers","⛈️"],95:["Thunderstorm","⛈️"],96:["Thunderstorm with hail","⛈️"],99:["Severe thunderstorm","⛈️"]};
 function weatherInfo(code){return weatherDescriptions[code]||["Unknown","🌡️"];}
@@ -185,7 +185,7 @@ radarLayer=L.tileLayer.wms("https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad
 layers:"nexrad-n0r-900913",
 format:"image/png",
 transparent:true,
-opacity:.55,
+opacity:radarOpacity,
 attribution:"Radar: Iowa Environmental Mesonet / NWS NEXRAD"
 }).addTo(map);
 document.getElementById("radar-timeline").style.display="block";
@@ -199,6 +199,9 @@ document.getElementById("radar-button").addEventListener("click",toggleRadar);
 document.getElementById("route-button").addEventListener("click",()=>setRouteMode(!routeMode));
 document.getElementById("route-clear").addEventListener("click",clearRoute);
 document.getElementById("radar-close").addEventListener("click",()=>{if(radarLayer){map.removeLayer(radarLayer);radarLayer=null;}document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");});
+document.getElementById("radar-opacity").addEventListener("input",e=>{radarOpacity=Number(e.target.value)/100;if(radarLayer)radarLayer.setOpacity(radarOpacity);});
+document.getElementById("radar-opacity-down").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.max(20,Number(input.value)-5);input.dispatchEvent(new Event("input"));});
+document.getElementById("radar-opacity-up").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.min(80,Number(input.value)+5);input.dispatchEvent(new Event("input"));});
 document.getElementById("daily-tab").addEventListener("click",()=>{currentView="daily";document.getElementById("daily-tab").classList.add("active");document.getElementById("hourly-tab").classList.remove("active");renderForecast();});
 document.getElementById("hourly-tab").addEventListener("click",()=>{currentView="hourly";document.getElementById("hourly-tab").classList.add("active");document.getElementById("daily-tab").classList.remove("active");renderForecast();});
 document.querySelectorAll(".metric-tabs button").forEach(b=>b.addEventListener("click",()=>setMetric(b.dataset.metric)));
