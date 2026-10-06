@@ -13,6 +13,7 @@ from services.route_weather_service import RouteWeatherService
 from services.radar_service import RadarService
 from services.route_radar_service import RouteRadarService
 from services.nws_observation_service import NWSObservationService
+from services.hrrr_future_radar_service import HRRRFutureRadarService
 
 
 app = FastAPI(title="Weather API")
@@ -26,6 +27,7 @@ route_weather_service = RouteWeatherService(routing_service, weather_service)
 radar_service = RadarService(MRMSClient())
 route_radar_service = RouteRadarService(routing_service, radar_service)
 nws_observation_service = NWSObservationService()
+hrrr_future_radar_service = HRRRFutureRadarService()
 
 
 @app.get("/")
@@ -210,6 +212,17 @@ def reverse_location(
         raise HTTPException(
             status_code=502,
             detail="Unable to identify that location.",
+        ) from error
+
+
+@app.get("/api/radar/future")
+def radar_future():
+    try:
+        return hrrr_future_radar_service.get_next_six_hours()
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve future radar timeline.",
         ) from error
 
 
