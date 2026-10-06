@@ -23,9 +23,6 @@ class OpenMeteoClient:
                     timeout=10,
                 )
 
-                if response.status_code not in self.RETRYABLE_STATUS_CODES:
-                    response.raise_for_status()
-
                 if response.status_code in self.RETRYABLE_STATUS_CODES:
                     if attempt == self.MAX_RETRIES - 1:
                         response.raise_for_status()
@@ -41,19 +38,31 @@ class OpenMeteoClient:
                     time.sleep(wait_time)
                     continue
 
+                response.raise_for_status()
+
                 data = response.json()
 
                 self.validate_response(data)
 
                 return data
 
-            except requests.exceptions.RequestException:
+            except requests.exceptions.Timeout:
                 if attempt == self.MAX_RETRIES - 1:
                     raise
 
                 wait_time = 2**attempt
 
-                print(f"Request failed. Retrying in {wait_time} seconds...")
+                print(f"Request timed out. Retrying in {wait_time} seconds...")
+
+                time.sleep(wait_time)
+
+            except requests.exceptions.ConnectionError:
+                if attempt == self.MAX_RETRIES - 1:
+                    raise
+
+                wait_time = 2**attempt
+
+                print(f"Connection failed. Retrying in {wait_time} seconds...")
 
                 time.sleep(wait_time)
 
