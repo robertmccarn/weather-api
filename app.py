@@ -1,55 +1,18 @@
-import threading
-import time
-
-import requests
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 
 from open_meteo import OpenMeteoClient
+from services.alert_service import AlertService
+from services.geocoding_service import GeocodingService
+from services.weather_service import WeatherService
 
 
 app = FastAPI(title="Weather API")
+
 client = OpenMeteoClient()
-
-NOMINATIM_URL = "https://nominatim.openstreetmap.org"
-NOMINATIM_HEADERS = {
-    "User-Agent": "weather-api/1.0 (educational project)"
-}
-NWS_URL = "https://api.weather.gov"
-NWS_HEADERS = {
-    "User-Agent": "weather-api/1.0 (educational project)",
-    "Accept": "application/geo+json",
-}
-_geocode_cache = {}
-_geocode_lock = threading.Lock()
-_last_geocode_request = 0.0
-
-
-def _nominatim_get(path, params):
-    global _last_geocode_request
-
-    cache_key = (path, tuple(sorted(params.items())))
-
-    if cache_key in _geocode_cache:
-        return _geocode_cache[cache_key]
-
-    with _geocode_lock:
-        elapsed = time.monotonic() - _last_geocode_request
-        if elapsed < 1:
-            time.sleep(1 - elapsed)
-
-        response = requests.get(
-            f"{NOMINATIM_URL}{path}",
-            params=params,
-            headers=NOMINATIM_HEADERS,
-            timeout=10,
-        )
-        _last_geocode_request = time.monotonic()
-        response.raise_for_status()
-
-    data = response.json()
-    _geocode_cache[cache_key] = data
-    return data
+weather_service = WeatherService(client)
+geocoding_service = GeocodingService()
+alert_service = AlertService()
 
 
 @app.get("/")
@@ -63,7 +26,7 @@ def forecast(
     longitude: float = Query(..., ge=-180, le=180),
 ):
     try:
-        data = client.get_forecast(
+        data = weather_service.get_forecast(
             latitude=latitude,
             longitude=longitude,
         )
@@ -86,7 +49,10 @@ def forecast(
                     "apparent_temperature", [None] * len(hourly["time"])
                 )[index],
                 "precipitation": hourly["precipitation"][index],
-                "precipitation_probability": hourly.get("precipitation_probability", [None] * len(hourly["time"]))[index],
+                "precipitation_probability": hourly.get(
+                    "precipitation_probability",
+                    [None] * len(hourly["time"]),
+                )[index],
                 "humidity": hourly["relative_humidity_2m"][index],
                 "weather_code": hourly.get(
                     "weather_code", [None] * len(hourly["time"])
@@ -132,15 +98,7 @@ def forecast(
 @app.get("/api/geocode/search")
 def search_locations(q: str = Query(..., min_length=2, max_length=100)):
     try:
-        return _nominatim_get(
-            "/search",
-            {
-                "q": q,
-                "format": "jsonv2",
-                "limit": 5,
-                "addressdetails": 1,
-            },
-        )
+        return geocoding_service.search(q)
     except Exception as error:
         raise HTTPException(
             status_code=502,
@@ -154,16 +112,7 @@ def reverse_location(
     longitude: float = Query(..., ge=-180, le=180),
 ):
     try:
-        return _nominatim_get(
-            "/reverse",
-            {
-                "lat": latitude,
-                "lon": longitude,
-                "format": "jsonv2",
-                "addressdetails": 1,
-                "zoom": 10,
-            },
-        )
+        return geocoding_service.reverse(latitude, longitude)
     except Exception as error:
         raise HTTPException(
             status_code=502,
@@ -177,27 +126,7 @@ def alerts(
     longitude: float = Query(..., ge=-180, le=180),
 ):
     try:
-        response = requests.get(
-            f"{NWS_URL}/alerts/active",
-            params={"point": f"{latitude},{longitude}"},
-            headers=NWS_HEADERS,
-            timeout=10,
-        )
-        response.raise_for_status()
-        features = response.json().get("features", [])
-        return [
-            {
-                "id": feature.get("id"),
-                "event": feature.get("properties", {}).get("event"),
-                "severity": feature.get("properties", {}).get("severity"),
-                "urgency": feature.get("properties", {}).get("urgency"),
-                "headline": feature.get("properties", {}).get("headline"),
-                "description": feature.get("properties", {}).get("description"),
-                "expires": feature.get("properties", {}).get("expires"),
-                "area": feature.get("properties", {}).get("areaDesc"),
-            }
-            for feature in features
-        ]
+        return alert_service.get_point_alerts(latitude, longitude)
     except Exception as error:
         raise HTTPException(
             status_code=502,
