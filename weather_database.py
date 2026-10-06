@@ -4,6 +4,7 @@ import sqlite3
 class WeatherDatabase:
     def __init__(self, database_path):
         self.connection = sqlite3.connect(database_path)
+        self.connection.execute("PRAGMA foreign_keys = ON")
         self.cursor = self.connection.cursor()
 
     def create_tables(self):
@@ -31,6 +32,20 @@ class WeatherDatabase:
                     REFERENCES locations(location_id),
                 UNIQUE (location_id, timestamp)
             )
+            """
+        )
+
+        self.cursor.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_locations_name
+            ON locations(name)
+            """
+        )
+
+        self.cursor.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_weather_location_timestamp
+            ON weather(location_id, timestamp)
             """
         )
 
