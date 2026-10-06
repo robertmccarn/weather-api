@@ -74,7 +74,7 @@ const map=L.map("map").setView([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
 const pulseIcon=L.divIcon({className:"custom-map-marker",html:"<div class=\"marker-pin\"></div><div class=\"marker-pulse\"></div>",iconSize:[20,20],iconAnchor:[10,10]});
 let marker=L.marker([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],{icon:pulseIcon}).addTo(map);
-let radarLayer=null,currentForecast=null,currentObservation=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null,radarLayers=[],radarLoaded=[],radarActiveLayer=0,radarTransitionToken=0,radarAnimationId=null,radarLoadingComplete=false;
+let radarLayer=null,currentForecast=null,currentObservation=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null,radarLayers=[],radarLoaded=[],radarActiveLayer=11,radarTransitionToken=0,radarAnimationId=null,radarLoadingComplete=false;
 let routeMode=false,routeOrigin=null,routeDestination=null,routeLine=null,routeMarkers=[],routeWeatherMarkers=[];
 const weatherDescriptions={0:["Clear sky","☀️"],1:["Mainly clear","🌤️"],2:["Partly cloudy","⛅"],3:["Overcast","☁️"],45:["Fog","🌫️"],48:["Rime fog","🌫️"],51:["Light drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy drizzle","🌧️"],61:["Light rain","🌦️"],63:["Rain","🌧️"],65:["Heavy rain","🌧️"],71:["Light snow","🌨️"],73:["Snow","❄️"],75:["Heavy snow","❄️"],80:["Light showers","🌦️"],81:["Showers","🌧️"],82:["Heavy showers","⛈️"],95:["Thunderstorm","⛈️"],96:["Thunderstorm with hail","⛈️"],99:["Severe thunderstorm","⛈️"]};
 function weatherInfo(code){return weatherDescriptions[code]||["Unknown","🌡️"];}
@@ -255,6 +255,7 @@ layer.once("load",()=>{
 radarLoaded[index]=true;
 if(radarLoaded.every(Boolean)){
 radarLoadingComplete=true;
+radarActiveLayer=radarFrames.length-1;
 updateRadarLoadingState();
 updateRadarFrame(radarActiveLayer,false);
 }else{
@@ -335,7 +336,7 @@ if(radarAnimationId){cancelAnimationFrame(radarAnimationId);radarAnimationId=nul
 radarLayers.forEach(layer=>{if(layer)map.removeLayer(layer);});
 radarLayers=[];
 radarLoaded=[];
-radarActiveLayer=0;
+radarActiveLayer=radarFrames.length-1;
 radarLoadingComplete=false;
 }
 function toggleRadar(){
