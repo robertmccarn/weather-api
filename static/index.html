@@ -316,10 +316,8 @@ radarState.currentIndex=clamped;
 document.getElementById("radar-slider").value=clamped;
 setRadarTimeLabel();
 if(radarState.animationId)cancelAnimationFrame(radarState.animationId);
-radarState.loadToken++;
-const token=radarState.loadToken;
 const targetReady=await prepareRadarLayer(targetLayerIndex,clamped);
-if(!targetReady||token!==radarState.loadToken)return;
+if(!targetReady)return;
 if(animate&&fromLayer&&clamped!==fromIndex){
 await animateRadarTransition(fromLayer,targetLayer,radarOpacity);
 }else{
