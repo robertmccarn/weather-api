@@ -16,16 +16,33 @@ class WeatherIngestion:
     def run(self):
         logger.info("Starting weather ingestion")
 
+        summary = {
+            "locations_processed": 0,
+            "locations_failed": 0,
+            "records_processed": 0,
+        }
+
         for location in self.locations:
             try:
-                self._process_location(location)
+                records_processed = self._process_location(location)
+                summary["locations_processed"] += 1
+                summary["records_processed"] += records_processed
             except Exception:
+                summary["locations_failed"] += 1
                 logger.exception(
                     "Failed to process %s",
                     location["name"],
                 )
 
-        logger.info("Weather ingestion completed")
+        logger.info(
+            "Weather ingestion completed: %d locations processed, "
+            "%d failed, %d records processed",
+            summary["locations_processed"],
+            summary["locations_failed"],
+            summary["records_processed"],
+        )
+
+        return summary
 
     def _process_location(self, location):
         try:
@@ -96,6 +113,8 @@ class WeatherIngestion:
                 location["name"],
                 records_processed,
             )
+
+            return records_processed
 
         except Exception:
             self.database.rollback()
