@@ -173,54 +173,18 @@ function renderRecent(){const el=document.getElementById("recent");el.innerHTML=
 function toggleDay(index,wrapper){if(expandedDay===index){expandedDay=null;renderForecast();return;}expandedDay=index;const day=currentForecast.daily[index],hours=currentForecast.hourly.filter(h=>h.time.slice(0,10)===day.date),detail=document.createElement("div");detail.className="daily-expanded";detail.innerHTML="<strong>"+formatDay(day.date)+"</strong> · Sunrise "+formatDateTime(day.sunrise)+" · Sunset "+formatDateTime(day.sunset)+" · Precipitation "+day.precipitation+" mm · "+hours.length+" hourly observations";wrapper.children[index].after(detail);}
 async function searchLocations(){const input=document.getElementById("search-input"),results=document.getElementById("search-results"),query=input.value.trim();if(query.length<2)return;results.style.display="block";results.innerHTML="<div class='search-result'>Searching...</div>";try{const r=await fetch("/api/geocode/search?q="+encodeURIComponent(query));if(!r.ok)throw 0;const places=await r.json();results.innerHTML="";if(!places.length){results.innerHTML="<div class='search-result'>No locations found.</div>";return;}places.forEach(place=>{const item=document.createElement("div");item.className="search-result";item.textContent=place.display_name;item.addEventListener("click",()=>{const lat=Number(place.lat),lon=Number(place.lon),name=place.display_name.split(",").slice(0,2).join(",");map.flyTo([lat,lon],10);marker.setLatLng([lat,lon]);results.style.display="none";loadForecast(lat,lon,name);});results.appendChild(item);});}catch{results.innerHTML="<div class='search-result'>Search unavailable.</div>";}}
 function radarFrameTimes(){
-const now=new Date();
-now.setUTCSeconds(0,0);
-now.setUTCMinutes(Math.floor(now.getUTCMinutes()/5)*5);
-return Array.from({length:13},(_,index)=>{
-const time=new Date(now.getTime()-(12-index)*5*60*1000);
-return time.toISOString();
-});
+return Array.from({length:12},(_,index)=>55-index*5);
 }
-function formatRadarTime(iso){
-return new Date(iso).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+function radarLayerName(ageMinutes){
+return ageMinutes===0?"nexrad-n0q":"nexrad-n0q-m"+String(ageMinutes).padStart(2,"0")+"m";
 }
-const RADAR_WMS_URL="https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi";
-let radarLayers=[null,null],radarActiveLayer=0,radarTransitionToken=0;
-function createRadarLayer(){
-return L.tileLayer.wms(RADAR_WMS_URL,{
-layers:"nexrad-n0r-wmst",
-format:"image/png",
-transparent:true,
-opacity:0,
-version:"1.1.1",
-attribution:"Radar: Iowa Environmental Mesonet / NWS NEXRAD",
-zIndex:450
-});
-}
-function ensureRadarLayers(){
-if(radarLayers[0])return;
-radarLayers=[createRadarLayer(),createRadarLayer()];
-radarLayers[0].addTo(map);
-radarLayers[1].addTo(map);
-}
-function animateRadarTransition(targetOpacity){
-const outgoing=radarLayers[radarActiveLayer];
-const incoming=radarLayers[1-radarActiveLayer];
-const start=performance.now();
-const duration=450;
-function step(now){
-const progress=Math.min(1,(now-start)/duration);
-const eased=1-Math.pow(1-progress,3);
-if(incoming)incoming.setOpacity(targetOpacity*eased);
-if(outgoing)outgoing.setOpacity(targetOpacity*(1-eased));
-if(progress<1)requestAnimationFrame(step);
-else if(outgoing)outgoing.setOpacity(0);
-}
-requestAnimationFrame(step);
+function formatRadarTime(ageMinutes){
+const time=new Date(Date.now()-ageMinutes*5*60*1000);
+return time.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 }
 function updateRadarFrame(index,animate=true){
 if(!radarFrames.length)return;
-const frame=radarFrames[index];
+const ageMinutes=radarFrames[index];
 ensureRadarLayers();
 const incomingIndex=1-radarActiveLayer;
 const incoming=radarLayers[incomingIndex];
@@ -228,16 +192,20 @@ const outgoing=radarLayers[radarActiveLayer];
 radarTransitionToken++;
 const token=radarTransitionToken;
 incoming.setOpacity(0);
-incoming.setParams({time:frame});
-const showFrame=()=>{
+incoming.setParams({layers:radarLayerName(ageMinutes),"_t":Date.now()});
+const startTransition=()=>{
 if(token!==radarTransitionToken)return;
 if(animate)animateRadarTransition(radarOpacity);
-else incoming.setOpacity(radarOpacity);
+else{
+incoming.setOpacity(radarOpacity);
+if(outgoing)outgoing.setOpacity(0);
+}
 radarActiveLayer=incomingIndex;
+radarLayer=radarLayers[radarActiveLayer];
 };
-incoming.once("load",showFrame);
-setTimeout(showFrame,900);
-document.getElementById("radar-time").textContent=formatRadarTime(frame);
+incoming.once("load",startTransition);
+setTimeout(startTransition,1000);
+document.getElementById("radar-time").textContent=ageMinutes===0?"Now":formatRadarTime(ageMinutes);
 document.getElementById("radar-slider").value=index;
 }
 function stopRadarPlayback(){
