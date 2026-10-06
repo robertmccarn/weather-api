@@ -30,7 +30,7 @@ button:hover{background:#f1f5f9}
 .panel{background:white;border-radius:0;padding:14px 16px;min-height:0;overflow:hidden;display:flex;flex-direction:column;border-left:1px solid #dbe2ea}
 .location-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 #location{margin:0;font-size:21px} #coordinates{color:#64748b;font-size:12px;margin-top:3px}
-#status{color:#64748b;font-size:12px;margin:4px 0 8px}
+#status{color:#64748b;font-size:12px;margin:4px 0 3px}.data-source{display:flex;align-items:center;gap:6px;color:#64748b;font-size:10px;margin:0 0 8px}.data-source-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.12)}.data-source strong{color:#334155}
 .recent{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 8px}
 .recent button{box-shadow:none;border:1px solid #dbe2ea;padding:5px 9px;font-size:12px}
 .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:9px}
@@ -49,7 +49,7 @@ button:hover{background:#f1f5f9}
 .daily-date{font-weight:700}.daily-range{font-weight:700}.daily-detail{color:#64748b;font-size:12px}.temp-high{color:#172033}.temp-low{color:#64748b}
 .weather-icon{font-size:23px}.condition-pill{display:inline-block;padding:2px 7px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:650;margin-top:3px}
 .daily-expanded{grid-column:1/-1;padding:8px 10px;color:#475569;font-size:12px;background:#f8fafc;border-radius:6px}.daily-expanded strong{color:#172033}
-.radar-timeline{transition:transform .22s ease,opacity .22s ease;position:absolute;z-index:1000;bottom:12px;left:16px;right:16px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);padding:10px 16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;max-width:calc(100% - 32px)}.radar-timeline input{width:100%;min-height:24px}.radar-buttons{transition:opacity .2s ease;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#475569}.radar-timeline button{transition:transform .12s ease,background-color .15s ease,box-shadow .15s ease}.radar-timeline button:active{transform:scale(.94)}.radar-timeline input[type="range"]{transition:filter .15s ease}.radar-timeline input[type="range"]:active{filter:brightness(.95)}.radar-legend{margin-top:7px}.radar-legend-bar{height:8px;border-radius:999px;background:linear-gradient(90deg,#22c55e 0%,#a3e635 25%,#fde047 45%,#fb923c 65%,#ef4444 82%,#a855f7 100%)}.radar-legend-labels{display:flex;justify-content:space-between;color:#64748b;font-size:10px;margin-top:2px}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
+.radar-timeline{transition:transform .22s ease,opacity .22s ease;position:absolute;z-index:1000;bottom:14px;left:16px;width:min(900px,calc(100% - 32px));background:rgba(255,255,255,.94);backdrop-filter:blur(10px);padding:11px 14px;border:1px solid rgba(148,163,184,.35);border-radius:12px;box-shadow:0 10px 28px rgba(15,23,42,.16);display:none}.radar-timeline input{width:100%;min-height:24px}.radar-buttons{transition:opacity .2s ease;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#475569}.radar-timeline button{transition:transform .12s ease,background-color .15s ease,box-shadow .15s ease}.radar-timeline button:active{transform:scale(.94)}.radar-timeline input[type="range"]{transition:filter .15s ease}.radar-timeline input[type="range"]:active{filter:brightness(.95)}.radar-legend{margin-top:8px}.radar-legend-title{font-size:10px;font-weight:700;color:#475569;margin-bottom:3px}.radar-legend-bar{height:8px;border-radius:999px;background:linear-gradient(90deg,#16a34a 0%,#84cc16 22%,#facc15 42%,#fb923c 60%,#ef4444 76%,#dc2626 86%,#a855f7 100%)}.radar-legend-labels{display:flex;justify-content:space-between;color:#64748b;font-size:9px;margin-top:2px}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
 .loading-skeleton{height:42px;border-radius:8px;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;margin-bottom:8px}
 @keyframes shimmer{to{background-position:-200% 0}}
 .custom-map-marker{background:transparent;border:0}.marker-pin{position:absolute;top:4px;left:4px;width:12px;height:12px;background:#2563eb;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.3);z-index:2}.marker-pulse{position:absolute;top:0;left:0;width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.35);animation:marker-pulse 2s infinite}.custom-map-marker.route-marker .marker-pulse{animation:none}@keyframes marker-pulse{0%{transform:scale(.8);opacity:1}100%{transform:scale(2.4);opacity:0}}.leaflet-tile{transition:opacity .35s ease-in-out}.leaflet-popup-content-wrapper{border-radius:10px}.weather-popup{min-width:150px}.weather-popup .popup-temp{font-size:22px;font-weight:800;margin:3px 0}
@@ -59,15 +59,15 @@ button:hover{background:#f1f5f9}
 <body>
 <header><h1>Weather Map</h1><p>Click the map, search for a place, or use your current location.</p></header>
 <main>
-<div class="map-wrap"><div id="map"></div><div class="map-controls"><div class="search-box"><input id="search-input" type="search" placeholder="Search a city or place..."><button id="search-button">Search</button></div><button id="locate-button" title="Use my location">My location</button><button id="radar-button" title="Toggle radar">Radar</button><button id="route-button" title="Plan weather along a driving route">Route</button><button id="share-button" title="Copy or share this forecast">Share</button><div id="search-results" class="search-results"></div></div><div id="route-controls" class="route-controls"><strong>Route weather</strong><span id="route-instructions">Click a starting point on the map.</span><div class="route-actions"><button id="route-clear">Clear</button></div></div><div id="route-summary" class="route-summary"></div><div id="radar-credit" class="radar-credit">Radar: IEM / NWS NEXRAD</div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><div><button id="radar-play" title="Play radar animation">▶</button> <strong id="radar-time">Current NEXRAD reflectivity</strong></div><div style="display:flex;gap:5px"><button id="radar-opacity-down" title="Decrease radar opacity">−</button><button id="radar-opacity-up" title="Increase radar opacity">+</button><button id="radar-close">Close</button></div></div><input id="radar-slider" type="range" min="0" max="11" value="11" step="1" aria-label="Radar time"><div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b"><span>1 hour ago</span><span>Now</span></div><div style="font-size:11px;color:#64748b;margin-top:5px">Radar opacity</div><input id="radar-opacity" type="range" min="20" max="80" value="50" step="5" aria-label="Radar opacity"><div class="radar-legend"><div class="radar-legend-bar" aria-label="Radar reflectivity intensity"></div><div class="radar-legend-labels"><span>Light</span><span>Moderate</span><span>Heavy</span><span>Strong</span></div></div></div></div>
-<section class="panel"><div class="location-title"><div><h2 id="location">Spring, TX</h2><div id="coordinates">30.0799, -95.4172</div></div></div><div id="alert-banner" class="alert-banner"></div><div id="status">Loading forecast...</div><div id="recent" class="recent"></div><div class="summary"><div class="metric"><div class="metric-label">Now</div><div class="metric-value" id="current-temp">--</div></div><div class="metric"><div class="metric-label">Feels like</div><div class="metric-value" id="feels-like">--</div></div><div class="metric"><div class="metric-label">Conditions</div><div class="metric-value" id="current-condition">--</div></div></div><div class="tabs"><button id="daily-tab" class="active">7-Day</button><button id="hourly-tab">Hourly</button></div><div class="chart-tools"><strong>Next 24 hours</strong><div class="metric-tabs"><button data-metric="temperature" class="active">Temp °F</button><button data-metric="precipitation">Rain %</button><button data-metric="wind">Wind mph</button></div></div><div id="chart-wrap"><canvas id="temperature-chart"></canvas></div><div id="forecast"></div></section>
+<div class="map-wrap"><div id="map"></div><div class="map-controls"><div class="search-box"><input id="search-input" type="search" placeholder="Search a city or place..."><button id="search-button">Search</button></div><button id="locate-button" title="Use my location">My location</button><button id="radar-button" title="Toggle radar">Radar</button><button id="route-button" title="Plan weather along a driving route">Route</button><button id="share-button" title="Copy or share this forecast">Share</button><div id="search-results" class="search-results"></div></div><div id="route-controls" class="route-controls"><strong>Route weather</strong><span id="route-instructions">Click a starting point on the map.</span><div class="route-actions"><button id="route-clear">Clear</button></div></div><div id="route-summary" class="route-summary"></div><div id="radar-credit" class="radar-credit">Radar: IEM / NWS NEXRAD</div><div id="radar-timeline" class="radar-timeline"><div class="radar-buttons"><div><button id="radar-play" title="Play radar animation">▶</button> <strong>NEXRAD Reflectivity</strong> <span id="radar-frame-type" style="color:#64748b;font-size:10px">8-bit mosaic · 5 min</span></div><div style="display:flex;gap:5px"><button id="radar-opacity-down" title="Decrease radar opacity">−</button><button id="radar-opacity-up" title="Increase radar opacity">+</button><button id="radar-close">Close</button></div></div><input id="radar-slider" type="range" min="0" max="11" value="11" step="1" aria-label="Radar time"><div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b"><span>55 min ago</span><span>Now</span></div><div style="font-size:11px;color:#64748b;margin-top:5px">Radar opacity</div><input id="radar-opacity" type="range" min="20" max="80" value="50" step="5" aria-label="Radar opacity"><div class="radar-legend"><div class="radar-legend-title">Reflectivity (dBZ)</div><div class="radar-legend-bar" aria-label="NEXRAD reflectivity in dBZ"></div><div class="radar-legend-labels"><span>20</span><span>30</span><span>40</span><span>50</span><span>60+</span></div></div></div></div>
+<section class="panel"><div class="location-title"><div><h2 id="location">Spring, TX</h2><div id="coordinates">30.0799, -95.4172</div></div></div><div id="alert-banner" class="alert-banner"></div><div id="status">Loading forecast...</div><div id="data-source" class="data-source"><span class="data-source-dot"></span><span>Loading live observation...</span></div><div id="recent" class="recent"></div><div class="summary"><div class="metric"><div class="metric-label">Now</div><div class="metric-value" id="current-temp">--</div></div><div class="metric"><div class="metric-label">Feels like</div><div class="metric-value" id="feels-like">--</div></div><div class="metric"><div class="metric-label">Conditions</div><div class="metric-value" id="current-condition">--</div></div></div><div class="tabs"><button id="daily-tab" class="active">7-Day</button><button id="hourly-tab">Hourly</button></div><div class="chart-tools"><strong>Next 24 hours</strong><div class="metric-tabs"><button data-metric="temperature" class="active">Temp °F</button><button data-metric="precipitation">Rain %</button><button data-metric="wind">Wind mph</button></div></div><div id="chart-wrap"><canvas id="temperature-chart"></canvas></div><div id="forecast"></div></section>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script><script>const DEFAULT_LOCATION={lat:30.0799,lon:-95.4172,name:"Spring, TX"};
 const map=L.map("map").setView([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
 const pulseIcon=L.divIcon({className:"custom-map-marker",html:"<div class=\"marker-pin\"></div><div class=\"marker-pulse\"></div>",iconSize:[20,20],iconAnchor:[10,10]});
 let marker=L.marker([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],{icon:pulseIcon}).addTo(map);
-let radarLayer=null,radarTransitionTimer=null,currentForecast=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null;
+let radarLayer=null,currentForecast=null,currentObservation=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null,radarLayers=[null,null],radarActiveLayer=0,radarTransitionToken=0;
 let routeMode=false,routeOrigin=null,routeDestination=null,routeLine=null,routeMarkers=[],routeWeatherMarkers=[];
 const weatherDescriptions={0:["Clear sky","☀️"],1:["Mainly clear","🌤️"],2:["Partly cloudy","⛅"],3:["Overcast","☁️"],45:["Fog","🌫️"],48:["Rime fog","🌫️"],51:["Light drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy drizzle","🌧️"],61:["Light rain","🌦️"],63:["Rain","🌧️"],65:["Heavy rain","🌧️"],71:["Light snow","🌨️"],73:["Snow","❄️"],75:["Heavy snow","❄️"],80:["Light showers","🌦️"],81:["Showers","🌧️"],82:["Heavy showers","⛈️"],95:["Thunderstorm","⛈️"],96:["Thunderstorm with hail","⛈️"],99:["Severe thunderstorm","⛈️"]};
 function weatherInfo(code){return weatherDescriptions[code]||["Unknown","🌡️"];}
@@ -150,7 +150,21 @@ try{const r=await fetch("/api/forecast?latitude="+lat+"&longitude="+lon);if(!r.o
 if(updateUrl)history.replaceState(null,"","?lat="+lat.toFixed(4)+"&lon="+lon.toFixed(4));
 loadAlerts(lat,lon);document.getElementById("location").textContent=name;document.getElementById("coordinates").textContent=lat.toFixed(4)+", "+lon.toFixed(4);
 document.getElementById("status").textContent="Forecast for "+(currentForecast.timezone||"local time");
-const current=currentForecast.hourly[0],info=weatherInfo(current.weather_code);document.getElementById("current-temp").textContent=Math.round(current.temperature)+"°";document.getElementById("feels-like").textContent=Math.round(current.apparent_temperature)+"°";document.getElementById("current-condition").textContent=info[1]+" "+info[0];
+const current=currentForecast.hourly[0],info=weatherInfo(current.weather_code);
+if(currentObservation&&currentObservation.temperature_f!=null){
+document.getElementById("current-temp").textContent=Math.round(currentObservation.temperature_f)+"°";
+document.getElementById("feels-like").textContent=Math.round(currentObservation.apparent_temperature_f??current.apparent_temperature)+"°";
+document.getElementById("current-condition").textContent=(currentObservation.text_description||info[0]);
+document.getElementById("status").textContent="Forecast · "+(currentForecast.timezone||"local time");
+const observedAt=currentObservation.timestamp?new Date(currentObservation.timestamp):null;
+const age=observedAt?Math.max(0,Math.round((Date.now()-observedAt.getTime())/60000)):null;
+document.getElementById("data-source").innerHTML="<span class='data-source-dot'></span><span><strong>NWS observed</strong> · "+currentObservation.station_name+(age!=null?" · "+age+" min ago":"")+"</span>";
+}else{
+document.getElementById("current-temp").textContent=Math.round(current.temperature)+"°";
+document.getElementById("feels-like").textContent=Math.round(current.apparent_temperature)+"°";
+document.getElementById("current-condition").textContent=info[1]+" "+info[0];
+document.getElementById("data-source").innerHTML="<span class='data-source-dot'></span><span><strong>Open-Meteo forecast</strong> · live model conditions</span>";
+}
 
 renderChart();renderForecast();
 }catch{document.getElementById("status").textContent="Unable to load forecast.";document.getElementById("forecast").innerHTML="";}}
@@ -172,19 +186,57 @@ function saveRecent(name,lat,lon){let items=JSON.parse(localStorage.getItem("wea
 function renderRecent(){const el=document.getElementById("recent");el.innerHTML="";JSON.parse(localStorage.getItem("weatherRecent")||"[]").forEach(x=>{const b=document.createElement("button");b.textContent=x.name;b.onclick=()=>{map.flyTo([x.lat,x.lon],10);marker.setLatLng([x.lat,x.lon]);loadForecast(x.lat,x.lon,x.name);};el.appendChild(b);});}
 function toggleDay(index,wrapper){if(expandedDay===index){expandedDay=null;renderForecast();return;}expandedDay=index;const day=currentForecast.daily[index],hours=currentForecast.hourly.filter(h=>h.time.slice(0,10)===day.date),detail=document.createElement("div");detail.className="daily-expanded";detail.innerHTML="<strong>"+formatDay(day.date)+"</strong> · Sunrise "+formatDateTime(day.sunrise)+" · Sunset "+formatDateTime(day.sunset)+" · Precipitation "+day.precipitation+" mm · "+hours.length+" hourly observations";wrapper.children[index].after(detail);}
 async function searchLocations(){const input=document.getElementById("search-input"),results=document.getElementById("search-results"),query=input.value.trim();if(query.length<2)return;results.style.display="block";results.innerHTML="<div class='search-result'>Searching...</div>";try{const r=await fetch("/api/geocode/search?q="+encodeURIComponent(query));if(!r.ok)throw 0;const places=await r.json();results.innerHTML="";if(!places.length){results.innerHTML="<div class='search-result'>No locations found.</div>";return;}places.forEach(place=>{const item=document.createElement("div");item.className="search-result";item.textContent=place.display_name;item.addEventListener("click",()=>{const lat=Number(place.lat),lon=Number(place.lon),name=place.display_name.split(",").slice(0,2).join(",");map.flyTo([lat,lon],10);marker.setLatLng([lat,lon]);results.style.display="none";loadForecast(lat,lon,name);});results.appendChild(item);});}catch{results.innerHTML="<div class='search-result'>Search unavailable.</div>";}}
+const RADAR_TILE_BASE="https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/";
 function radarFrameTimes(){
-return Array.from({length:12},(_,index)=>55-index*5);
+const now=new Date();
+now.setUTCSeconds(0,0);
+now.setUTCMinutes(Math.floor(now.getUTCMinutes()/5)*5);
+const anchor=new Date(now.getTime()-5*60*1000);
+return Array.from({length:12},(_,index)=>{
+const time=new Date(anchor.getTime()-(11-index)*5*60*1000);
+return time.toISOString();
+});
 }
-function radarLayerName(ageMinutes){
-return ageMinutes===0?"nexrad-n0q":"nexrad-n0q-m"+String(ageMinutes).padStart(2,"0")+"m";
+function radarTimestamp(iso){
+const d=new Date(iso);
+return d.getUTCFullYear().toString()+String(d.getUTCMonth()+1).padStart(2,"0")+String(d.getUTCDate()).padStart(2,"0")+String(d.getUTCHours()).padStart(2,"0")+String(d.getUTCMinutes()).padStart(2,"0");
 }
-function formatRadarTime(ageMinutes){
-const time=new Date(Date.now()-ageMinutes*5*60*1000);
-return time.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+function radarTileUrl(iso){
+return RADAR_TILE_BASE+"ridge::USCOMP-N0Q-"+radarTimestamp(iso)+"/{z}/{x}/{y}.png";
+}
+function formatRadarTime(iso){
+return new Date(iso).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+}
+function createRadarLayer(url){
+return L.tileLayer(url,{
+opacity:0,
+zIndex:450,
+tileSize:256,
+updateWhenIdle:false,
+keepBuffer:1,
+attribution:"Radar: IEM / NWS NEXRAD"
+}).addTo(map);
+}
+function ensureRadarLayers(){
+if(radarLayers[0])return;
+const initial=radarFrames[radarFrames.length-1]||new Date(Date.now()-5*60*1000).toISOString();
+radarLayers=[createRadarLayer(radarTileUrl(initial)),createRadarLayer(radarTileUrl(initial))];
+}
+function animateRadarTransition(incoming,outgoing,targetOpacity){
+const start=performance.now(),duration=380;
+function step(now){
+const progress=Math.min(1,(now-start)/duration);
+const eased=1-Math.pow(1-progress,3);
+incoming.setOpacity(targetOpacity*eased);
+if(outgoing)outgoing.setOpacity(targetOpacity*(1-eased));
+if(progress<1)requestAnimationFrame(step);
+else if(outgoing)outgoing.setOpacity(0);
+}
+requestAnimationFrame(step);
 }
 function updateRadarFrame(index,animate=true){
 if(!radarFrames.length)return;
-const ageMinutes=radarFrames[index];
+const frame=radarFrames[index];
 ensureRadarLayers();
 const incomingIndex=1-radarActiveLayer;
 const incoming=radarLayers[incomingIndex];
@@ -192,20 +244,20 @@ const outgoing=radarLayers[radarActiveLayer];
 radarTransitionToken++;
 const token=radarTransitionToken;
 incoming.setOpacity(0);
-incoming.setParams({layers:radarLayerName(ageMinutes),"_t":Date.now()});
+incoming.setUrl(radarTileUrl(frame),true);
 const startTransition=()=>{
 if(token!==radarTransitionToken)return;
-if(animate)animateRadarTransition(radarOpacity);
+if(animate)animateRadarTransition(incoming,outgoing,radarOpacity);
 else{
 incoming.setOpacity(radarOpacity);
 if(outgoing)outgoing.setOpacity(0);
 }
 radarActiveLayer=incomingIndex;
 radarLayer=radarLayers[radarActiveLayer];
+document.getElementById("radar-time").textContent=formatRadarTime(frame)+" local";
 };
 incoming.once("load",startTransition);
-setTimeout(startTransition,1000);
-document.getElementById("radar-time").textContent=ageMinutes===0?"Now":formatRadarTime(ageMinutes);
+setTimeout(startTransition,1400);
 document.getElementById("radar-slider").value=index;
 }
 function stopRadarPlayback(){
@@ -223,21 +275,28 @@ document.getElementById("radar-play").setAttribute("aria-label","Pause radar ani
 let index=Number(document.getElementById("radar-slider").value);
 radarTimer=setInterval(()=>{
 index=(index+1)%radarFrames.length;
-updateRadarFrame(index);
-},700);
+updateRadarFrame(index,true);
+},1100);
+}
+function closeRadarLayers(){
+radarTransitionToken++;
+stopRadarPlayback();
+radarLayers.forEach(layer=>{if(layer)map.removeLayer(layer);});
+radarLayers=[null,null];
+radarActiveLayer=0;
+radarLayer=null;
 }
 function toggleRadar(){
 const credit=document.getElementById("radar-credit");
-if(radarLayer){
-stopRadarPlayback();
-map.removeLayer(radarLayer);
-radarLayer=null;
+if(radarLayers[0]){
+closeRadarLayers();
 credit.style.display="none";
 document.getElementById("radar-timeline").style.display="none";
 document.getElementById("radar-button").classList.remove("route-active");
 return;
 }
 radarFrames=radarFrameTimes();
+ensureRadarLayers();
 document.getElementById("radar-timeline").style.display="block";
 credit.style.display="block";
 document.getElementById("radar-button").classList.add("route-active");
@@ -249,7 +308,7 @@ document.getElementById("locate-button").addEventListener("click",()=>{if(!navig
 document.getElementById("radar-button").addEventListener("click",toggleRadar);
 document.getElementById("route-button").addEventListener("click",()=>setRouteMode(!routeMode));
 document.getElementById("route-clear").addEventListener("click",clearRoute);
-document.getElementById("radar-play").addEventListener("click",startRadarPlayback);document.getElementById("radar-slider").addEventListener("input",e=>{stopRadarPlayback();updateRadarFrame(Number(e.target.value),true);});document.getElementById("radar-close").addEventListener("click",()=>{stopRadarPlayback();if(radarLayer){radarTransitionToken++;radarLayers.forEach(layer=>{if(layer)map.removeLayer(layer);});radarLayers=[null,null];radarActiveLayer=0;radarLayer=null;}document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");});
+document.getElementById("radar-play").addEventListener("click",startRadarPlayback);document.getElementById("radar-slider").addEventListener("input",e=>{stopRadarPlayback();updateRadarFrame(Number(e.target.value),true);});document.getElementById("radar-close").addEventListener("click",()=>{closeRadarLayers();document.getElementById("radar-timeline").style.display="none";document.getElementById("radar-credit").style.display="none";document.getElementById("radar-button").classList.remove("route-active");});
 document.getElementById("radar-opacity").addEventListener("input",e=>{radarOpacity=Number(e.target.value)/100;radarLayers.forEach(layer=>{if(layer)layer.setOpacity(radarOpacity);});});
 document.getElementById("radar-opacity-down").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.max(20,Number(input.value)-5);input.dispatchEvent(new Event("input"));});
 document.getElementById("radar-opacity-up").addEventListener("click",()=>{const input=document.getElementById("radar-opacity");input.value=Math.min(80,Number(input.value)+5);input.dispatchEvent(new Event("input"));});
