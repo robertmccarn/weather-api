@@ -242,3 +242,35 @@ def test_close_closes_database_connection(tmp_path):
         assert False
     except Exception:
         pass
+
+
+def test_add_location_is_idempotent_by_name(tmp_path):
+    database = WeatherDatabase(tmp_path / "test.db")
+    database.create_tables()
+
+    database.add_location("Spring, TX", 30.0799, -95.4172)
+    first_id = database.get_location_id("Spring, TX")
+
+    database.add_location("Spring, TX", 30.1, -95.5)
+    second_id = database.get_location_id("Spring, TX")
+
+    assert second_id == first_id
+
+    database.cursor.execute("SELECT COUNT(*) FROM locations")
+    assert database.cursor.fetchone()[0] == 1
+
+    database.close()
+
+
+def test_foreign_keys_are_enabled(tmp_path):
+    database = WeatherDatabase(tmp_path / "test.db")
+    database.create_tables()
+
+    try:
+        database.save_weather(999, "2026-10-06T10:00", 80, 0, 70)
+        database.commit()
+        assert False
+    except Exception:
+        database.rollback()
+
+    database.close()
