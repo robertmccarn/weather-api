@@ -7,6 +7,49 @@ class WeatherDatabase:
         self.connection.execute("PRAGMA foreign_keys = ON")
         self.cursor = self.connection.cursor()
 
+    def _deduplicate_locations(self):
+        self.cursor.execute(
+            """
+            SELECT name, MIN(location_id)
+            FROM locations
+            GROUP BY name
+            HAVING COUNT(*) > 1
+            """
+        )
+
+        duplicates = self.cursor.fetchall()
+
+        for name, canonical_id in duplicates:
+            self.cursor.execute(
+                """
+                SELECT location_id
+                FROM locations
+                WHERE name = ?
+                  AND location_id != ?
+                """,
+                (name, canonical_id),
+            )
+
+            duplicate_ids = [row[0] for row in self.cursor.fetchall()]
+
+            for duplicate_id in duplicate_ids:
+                self.cursor.execute(
+                    """
+                    UPDATE weather
+                    SET location_id = ?
+                    WHERE location_id = ?
+                    """,
+                    (canonical_id, duplicate_id),
+                )
+
+                self.cursor.execute(
+                    """
+                    DELETE FROM locations
+                    WHERE location_id = ?
+                    """,
+                    (duplicate_id,),
+                )
+
     def create_tables(self):
         self.cursor.execute(
             """
@@ -65,6 +108,8 @@ class WeatherDatabase:
             )
             """
         )
+
+        self._deduplicate_locations()
 
         self.cursor.execute(
             """
