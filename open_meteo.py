@@ -95,3 +95,14 @@ class OpenMeteoClient:
                 raise ValueError(
                     f"API response is missing hourly field: {field}"
                 )
+
+        field_lengths = {
+            field: len(data["hourly"][field])
+            for field in required_fields
+        }
+
+        if len(set(field_lengths.values())) != 1:
+            raise ValueError(
+                "Hourly fields must contain the same number of records: "
+                f"{field_lengths}"
+            )
