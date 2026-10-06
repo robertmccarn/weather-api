@@ -1,3 +1,5 @@
+from unittest.mock import Mock, patch
+
 import pytest
 
 from radar.mrms import MRMSClient
@@ -51,3 +53,30 @@ def test_no_samples():
             -95.0,
             "1hr",
         )
+
+
+@patch("radar.mrms.requests.get")
+def test_get_precipitation_declares_wgs84_geometry(mock_get):
+    response = Mock()
+    response.raise_for_status.return_value = None
+    response.json.return_value = {
+        "samples": [
+            {
+                "value": 0.1,
+                "attributes": {
+                    "StdTime": "2026-10-06T18:00:00Z",
+                },
+            }
+        ]
+    }
+    mock_get.return_value = response
+
+    observation = MRMSClient().get_precipitation(
+        30.0799,
+        -95.4172,
+    )
+
+    params = mock_get.call_args.kwargs["params"]
+
+    assert '"spatialReference":{"wkid":4326}' in params["geometry"]
+    assert observation.precipitation_inches == 0.1
