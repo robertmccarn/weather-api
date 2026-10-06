@@ -49,10 +49,10 @@ button:hover{background:#f1f5f9}
 .daily-date{font-weight:700}.daily-range{font-weight:700}.daily-detail{color:#64748b;font-size:12px}.temp-high{color:#172033}.temp-low{color:#64748b}
 .weather-icon{font-size:23px}.condition-pill{display:inline-block;padding:2px 7px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:650;margin-top:3px}
 .daily-expanded{grid-column:1/-1;padding:8px 10px;color:#475569;font-size:12px;background:#f8fafc;border-radius:6px}.daily-expanded strong{color:#172033}
-.radar-timeline{position:absolute;z-index:1000;bottom:12px;left:16px;right:16px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);padding:10px 16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;max-width:calc(100% - 32px)}.radar-timeline input{width:100%;min-height:24px}.radar-buttons{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#475569}.radar-legend{margin-top:7px}.radar-legend-bar{height:8px;border-radius:999px;background:linear-gradient(90deg,#22c55e 0%,#a3e635 25%,#fde047 45%,#fb923c 65%,#ef4444 82%,#a855f7 100%)}.radar-legend-labels{display:flex;justify-content:space-between;color:#64748b;font-size:10px;margin-top:2px}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
+.radar-timeline{transition:transform .22s ease,opacity .22s ease;position:absolute;z-index:1000;bottom:12px;left:16px;right:16px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);padding:10px 16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;max-width:calc(100% - 32px)}.radar-timeline input{width:100%;min-height:24px}.radar-buttons{transition:opacity .2s ease;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#475569}.radar-timeline button{transition:transform .12s ease,background-color .15s ease,box-shadow .15s ease}.radar-timeline button:active{transform:scale(.94)}.radar-timeline input[type="range"]{transition:filter .15s ease}.radar-timeline input[type="range"]:active{filter:brightness(.95)}.radar-legend{margin-top:7px}.radar-legend-bar{height:8px;border-radius:999px;background:linear-gradient(90deg,#22c55e 0%,#a3e635 25%,#fde047 45%,#fb923c 65%,#ef4444 82%,#a855f7 100%)}.radar-legend-labels{display:flex;justify-content:space-between;color:#64748b;font-size:10px;margin-top:2px}.radar-credit{position:absolute;z-index:1000;bottom:4px;right:4px;background:rgba(255,255,255,.85);padding:2px 5px;font-size:10px;display:none}
 .loading-skeleton{height:42px;border-radius:8px;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;margin-bottom:8px}
 @keyframes shimmer{to{background-position:-200% 0}}
-.custom-map-marker{background:transparent;border:0}.marker-pin{position:absolute;top:4px;left:4px;width:12px;height:12px;background:#2563eb;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.3);z-index:2}.marker-pulse{position:absolute;top:0;left:0;width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.35);animation:marker-pulse 2s infinite}.custom-map-marker.route-marker .marker-pulse{animation:none}@keyframes marker-pulse{0%{transform:scale(.8);opacity:1}100%{transform:scale(2.4);opacity:0}}.leaflet-popup-content-wrapper{border-radius:10px}.weather-popup{min-width:150px}.weather-popup .popup-temp{font-size:22px;font-weight:800;margin:3px 0}
+.custom-map-marker{background:transparent;border:0}.marker-pin{position:absolute;top:4px;left:4px;width:12px;height:12px;background:#2563eb;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.3);z-index:2}.marker-pulse{position:absolute;top:0;left:0;width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.35);animation:marker-pulse 2s infinite}.custom-map-marker.route-marker .marker-pulse{animation:none}@keyframes marker-pulse{0%{transform:scale(.8);opacity:1}100%{transform:scale(2.4);opacity:0}}.leaflet-tile{transition:opacity .35s ease-in-out}.leaflet-popup-content-wrapper{border-radius:10px}.weather-popup{min-width:150px}.weather-popup .popup-temp{font-size:22px;font-weight:800;margin:3px 0}
 @media(max-width:900px){body{overflow:auto}header{height:auto;padding:14px 16px}main{display:flex;flex-direction:column;height:auto;min-height:calc(100vh - 68px)}.map-wrap{height:55vh;min-height:390px}.panel{height:auto;max-height:none;border-left:0}.map-controls{right:8px;left:8px}.search-box{flex-basis:100%}.search-results{top:96px;width:calc(100% - 96px)}#chart-wrap{height:145px}}
 </style>
 </head>
@@ -67,7 +67,7 @@ const map=L.map("map").setView([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
 const pulseIcon=L.divIcon({className:"custom-map-marker",html:"<div class=\"marker-pin\"></div><div class=\"marker-pulse\"></div>",iconSize:[20,20],iconAnchor:[10,10]});
 let marker=L.marker([DEFAULT_LOCATION.lat,DEFAULT_LOCATION.lon],{icon:pulseIcon}).addTo(map);
-let radarLayer=null,currentForecast=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null;
+let radarLayer=null,radarTransitionTimer=null,currentForecast=null,currentView="daily",temperatureChart=null,expandedDay=null,currentMetric="temperature",radarOpacity=.50,radarFrames=[],radarPlaying=false,radarTimer=null;
 let routeMode=false,routeOrigin=null,routeDestination=null,routeLine=null,routeMarkers=[],routeWeatherMarkers=[];
 const weatherDescriptions={0:["Clear sky","☀️"],1:["Mainly clear","🌤️"],2:["Partly cloudy","⛅"],3:["Overcast","☁️"],45:["Fog","🌫️"],48:["Rime fog","🌫️"],51:["Light drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy drizzle","🌧️"],61:["Light rain","🌦️"],63:["Rain","🌧️"],65:["Heavy rain","🌧️"],71:["Light snow","🌨️"],73:["Snow","❄️"],75:["Heavy snow","❄️"],80:["Light showers","🌦️"],81:["Showers","🌧️"],82:["Heavy showers","⛈️"],95:["Thunderstorm","⛈️"],96:["Thunderstorm with hail","⛈️"],99:["Severe thunderstorm","⛈️"]};
 function weatherInfo(code){return weatherDescriptions[code]||["Unknown","🌡️"];}
@@ -197,20 +197,19 @@ version:"1.1.1",
 attribution:"Radar: Iowa Environmental Mesonet / NWS NEXRAD"
 }).addTo(map);
 }
-radarLayer.setParams({time:frame});
-document.getElementById("radar-time").textContent=formatRadarTime(frame)+" UTC";
+if(radarTransitionTimer){clearTimeout(radarTransitionTimer);radarTransitionTimer=null;}\nradarLayer.setOpacity(0);\nradarLayer.setParams({time:frame});\nradarTransitionTimer=setTimeout(()=>{if(radarLayer){radarLayer.setOpacity(radarOpacity);}},40);\ndocument.getElementById("radar-time").textContent=formatRadarTime(frame)+" UTC";
 document.getElementById("radar-slider").value=index;
 }
 function stopRadarPlayback(){
 if(radarTimer){clearInterval(radarTimer);radarTimer=null;}
 radarPlaying=false;
-document.getElementById("radar-play").textContent="▶";
+document.getElementById("radar-play").textContent="▶";\ndocument.getElementById("radar-play").setAttribute("aria-label","Play radar animation");
 }
 function startRadarPlayback(){
 if(radarPlaying){stopRadarPlayback();return;}
 if(!radarFrames.length)return;
 radarPlaying=true;
-document.getElementById("radar-play").textContent="⏸";
+document.getElementById("radar-play").textContent="⏸";\ndocument.getElementById("radar-play").setAttribute("aria-label","Pause radar animation");
 let index=Number(document.getElementById("radar-slider").value);
 radarTimer=setInterval(()=>{
 index=(index+1)%radarFrames.length;
