@@ -256,7 +256,7 @@ const frame=radarState.sequence[radarState.currentIndex];
 document.getElementById("radar-time").textContent=frame?(frame.kind==="observed"?"Observed · ":"Forecast · ")+frame.label:"Radar";
 }
 function createObservedRadarLayer(frame){
-return L.tileLayer(frame.url,{opacity:0,zIndex:450,tileSize:256,updateWhenIdle:true,keepBuffer:1,attribution:"Radar: NOAA MRMS / IEM"}).addTo(map);
+return L.tileLayer(frame.url,{opacity:0,zIndex:450,tileSize:256,updateWhenIdle:true,updateWhenZooming:false,updateInterval:500,keepBuffer:0,reuseTiles:true,noWrap:true,attribution:"Radar: NOAA MRMS / IEM"}).addTo(map);
 }
 function createForecastRadarLayer(frame){
 return L.tileLayer.wms(RADAR_WMS_URL,{
