@@ -15,6 +15,7 @@ def test_forecast_returns_hourly_data():
             "temperature_2m": [80.0, 82.0],
             "apparent_temperature": [81.0, 83.0],
             "precipitation": [0.0, 0.1],
+            "precipitation_probability": [0, 20],
             "relative_humidity_2m": [70.0, 68.0],
             "weather_code": [0, 1],
             "wind_speed_10m": [5.0, 6.0],
@@ -52,6 +53,7 @@ def test_forecast_returns_hourly_data():
     assert body["hourly"][0]["temperature"] == 80.0
     assert body["hourly"][0]["apparent_temperature"] == 81.0
     assert body["hourly"][1]["humidity"] == 68.0
+    assert body["hourly"][1]["precipitation_probability"] == 20
     assert body["daily"][0]["temperature_max"] == 88.0
     assert body["daily"][0]["precipitation_probability"] == 5
 
