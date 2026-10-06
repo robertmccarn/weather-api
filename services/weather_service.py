@@ -15,22 +15,34 @@ class WeatherService:
         self,
         coordinates: list[tuple[float, float]],
     ) -> list[WeatherPoint]:
+        return [
+            point
+            for series in self.get_weather_series(coordinates)
+            for point in series
+        ]
+
+    def get_weather_series(
+        self,
+        coordinates: list[tuple[float, float]],
+    ) -> list[list[WeatherPoint]]:
         if not coordinates:
             return []
 
         forecasts = self.client.get_forecast_batch(coordinates)
-        points = []
+        series = []
 
         for (latitude, longitude), forecast in zip(coordinates, forecasts):
             hourly = forecast["hourly"]
-            for index in range(len(hourly["time"])):
-                points.append(
+            series.append(
+                [
                     WeatherPoint.from_hourly(
                         latitude,
                         longitude,
                         hourly,
                         index,
                     )
-                )
+                    for index in range(len(hourly["time"]))
+                ]
+            )
 
-        return points
+        return series
