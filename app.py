@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 
@@ -5,6 +7,8 @@ from open_meteo import OpenMeteoClient
 from services.alert_service import AlertService
 from services.geocoding_service import GeocodingService
 from services.weather_service import WeatherService
+from services.routing_service import RoutingService
+from services.route_weather_service import RouteWeatherService
 
 
 app = FastAPI(title="Weather API")
@@ -13,6 +17,8 @@ client = OpenMeteoClient()
 weather_service = WeatherService(client)
 geocoding_service = GeocodingService()
 alert_service = AlertService()
+routing_service = RoutingService()
+route_weather_service = RouteWeatherService(routing_service, weather_service)
 
 
 @app.get("/")
@@ -93,6 +99,39 @@ def forecast(
         "hourly": hourly_records,
         "daily": daily_records,
     }
+
+
+@app.get("/api/route-weather")
+def route_weather(
+    origin_latitude: float = Query(..., ge=-90, le=90),
+    origin_longitude: float = Query(..., ge=-180, le=180),
+    destination_latitude: float = Query(..., ge=-90, le=90),
+    destination_longitude: float = Query(..., ge=-180, le=180),
+    departure: str | None = Query(
+        default=None,
+        description="ISO-8601 departure time. Defaults to now.",
+    ),
+    sample_count: int = Query(default=12, ge=2, le=24),
+):
+    try:
+        departure_time = (
+            datetime.fromisoformat(departure.replace("Z", "+00:00"))
+            if departure
+            else datetime.now()
+        )
+        return route_weather_service.get_route_weather(
+            origin=(origin_latitude, origin_longitude),
+            destination=(destination_latitude, destination_longitude),
+            departure_time=departure_time,
+            sample_count=sample_count,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to calculate route weather.",
+        ) from error
 
 
 @app.get("/api/geocode/search")
