@@ -208,13 +208,13 @@ function saveRecent(name,lat,lon){let items=JSON.parse(localStorage.getItem("wea
 function renderRecent(){const el=document.getElementById("recent");el.innerHTML="";JSON.parse(localStorage.getItem("weatherRecent")||"[]").forEach(x=>{const b=document.createElement("button");b.textContent=x.name;b.onclick=()=>{map.flyTo([x.lat,x.lon],10);marker.setLatLng([x.lat,x.lon]);loadForecast(x.lat,x.lon,x.name);};el.appendChild(b);});}
 function toggleDay(index,wrapper){if(expandedDay===index){expandedDay=null;renderForecast();return;}expandedDay=index;const day=currentForecast.daily[index],hours=currentForecast.hourly.filter(h=>h.time.slice(0,10)===day.date),detail=document.createElement("div");detail.className="daily-expanded";detail.innerHTML="<strong>"+formatDay(day.date)+"</strong> · Sunrise "+formatDateTime(day.sunrise)+" · Sunset "+formatDateTime(day.sunset)+" · Precipitation "+day.precipitation+" mm · "+hours.length+" hourly observations";wrapper.children[index].after(detail);}
 async function searchLocations(){const input=document.getElementById("search-input"),results=document.getElementById("search-results"),query=input.value.trim();if(query.length<2)return;results.style.display="block";results.innerHTML="<div class='search-result'>Searching...</div>";try{const r=await fetch("/api/geocode/search?q="+encodeURIComponent(query));if(!r.ok)throw 0;const places=await r.json();results.innerHTML="";if(!places.length){results.innerHTML="<div class='search-result'>No locations found.</div>";return;}places.forEach(place=>{const item=document.createElement("div");item.className="search-result";item.textContent=place.display_name;item.addEventListener("click",()=>{const lat=Number(place.lat),lon=Number(place.lon),name=place.display_name.split(",").slice(0,2).join(",");map.flyTo([lat,lon],10);marker.setLatLng([lat,lon]);results.style.display="none";loadForecast(lat,lon,name);});results.appendChild(item);});}catch{results.innerHTML="<div class='search-result'>Search unavailable.</div>";}}
-const RADAR_TILE_BASE="https://mesonet.agron.iastate.edu/c/tile.py/1.0.0/";
+const RADAR_TILE_BASE="https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/";
 function radarFrameTimes(){
 const now=new Date();
 now.setUTCSeconds(0,0);
 const minute=Math.floor(now.getUTCMinutes()/2)*2;
 now.setUTCMinutes(minute);
-const anchor=new Date(now.getTime()-2*60*1000);
+const anchor=new Date(now.getTime()-6*60*1000);
 return Array.from({length:13},(_,index)=>{
 const time=new Date(anchor.getTime()-(12-index)*2*60*1000);
 return time.toISOString();
@@ -256,10 +256,8 @@ opacity:0,
 zIndex:450,
 tileSize:256,
 updateWhenIdle:true,
-keepBuffer:0,
-tms:true,
-noWrap:true,
-bounds:L.latLngBounds([[18,-130],[55,-60]]),
+keepBuffer:1,
+maxNativeZoom:7,
 attribution:"Radar: NOAA MRMS / IEM"
 });
 layer.once("load",()=>{
