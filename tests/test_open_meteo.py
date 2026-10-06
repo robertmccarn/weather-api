@@ -43,6 +43,22 @@ def test_validate_response_rejects_missing_field():
         client.validate_response(data)
 
 
+def test_validate_response_rejects_mismatched_field_lengths():
+    client = OpenMeteoClient()
+
+    data = {
+        "hourly": {
+            "time": ["2026-10-05T10:00", "2026-10-05T11:00"],
+            "temperature_2m": [80.0],
+            "precipitation": [0.0, 0.1],
+            "relative_humidity_2m": [70.0, 68.0],
+        }
+    }
+
+    with pytest.raises(ValueError, match="same number of records"):
+        client.validate_response(data)
+
+
 @patch("open_meteo.time.sleep")
 @patch("open_meteo.requests.get")
 def test_get_forecast_retries_on_server_error(mock_get, mock_sleep):
