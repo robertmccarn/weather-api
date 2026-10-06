@@ -28,22 +28,19 @@ class RouteWeatherService:
             (sample["latitude"], sample["longitude"])
             for sample in samples
         ]
-        forecasts = self.weather_service.get_weather_points(coordinates)
-
-        route_start = departure_time
-        duration = timedelta(minutes=route["duration_minutes"])
+        forecast_series = self.weather_service.get_weather_series(coordinates)
 
         points = []
-        for sample, forecast_points in self._group_forecasts(
-            samples,
-            forecasts,
-        ):
-            eta = route_start + duration * (
-                sample["distance_km"] / route["distance_km"]
-                if route["distance_km"]
-                else 0
+        for sample, forecasts in zip(samples, forecast_series):
+            eta = departure_time + timedelta(
+                minutes=route["duration_minutes"]
+                * (
+                    sample["distance_km"] / route["distance_km"]
+                    if route["distance_km"]
+                    else 0
+                )
             )
-            weather = self._nearest_forecast(forecast_points, eta)
+            weather = self._nearest_forecast(forecasts, eta)
             points.append(
                 {
                     "latitude": sample["latitude"],
@@ -55,10 +52,7 @@ class RouteWeatherService:
             )
 
         return {
-            "origin": {
-                "latitude": origin[0],
-                "longitude": origin[1],
-            },
+            "origin": {"latitude": origin[0], "longitude": origin[1]},
             "destination": {
                 "latitude": destination[0],
                 "longitude": destination[1],
@@ -68,13 +62,6 @@ class RouteWeatherService:
             "geometry": route["geometry"],
             "points": points,
         }
-
-    @staticmethod
-    def _group_forecasts(samples, forecasts):
-        grouped = []
-        for index, sample in enumerate(samples):
-            grouped.append((sample, forecasts[index:index + 1]))
-        return grouped
 
     @staticmethod
     def _nearest_forecast(forecasts, target: datetime):
