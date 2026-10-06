@@ -232,10 +232,17 @@ return new Date(iso).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 function updateRadarLoadingState(){
 const loaded=radarLoaded.filter(Boolean).length;
 const label=document.getElementById("radar-time");
+const play=document.getElementById("radar-play");
 if(!radarLoadingComplete){
 label.textContent="Loading radar "+loaded+"/"+radarFrames.length+"…";
+play.disabled=true;
+play.style.opacity=".45";
+play.style.cursor="wait";
 }else{
 label.textContent=formatRadarTime(radarFrames[radarActiveLayer])+" local";
+play.disabled=false;
+play.style.opacity="1";
+play.style.cursor="pointer";
 }
 }
 function ensureRadarLayers(){
@@ -312,6 +319,7 @@ updateRadarLoadingState();
 document.getElementById("radar-slider").value=clamped;
 }
 function stopRadarPlayback(){
+document.getElementById("radar-play").disabled=false;
 if(radarTimer){clearInterval(radarTimer);radarTimer=null;}
 radarPlaying=false;
 document.getElementById("radar-play").textContent="▶";
