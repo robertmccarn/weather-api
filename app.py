@@ -11,6 +11,7 @@ from services.weather_service import WeatherService
 from services.routing_service import RoutingService
 from services.route_weather_service import RouteWeatherService
 from services.radar_service import RadarService
+from services.route_radar_service import RouteRadarService
 
 
 app = FastAPI(title="Weather API")
@@ -22,6 +23,7 @@ alert_service = AlertService()
 routing_service = RoutingService()
 route_weather_service = RouteWeatherService(routing_service, weather_service)
 radar_service = RadarService(MRMSClient())
+route_radar_service = RouteRadarService(routing_service, radar_service)
 
 
 @app.get("/")
@@ -91,7 +93,7 @@ def forecast(
                 "precipitation": daily["precipitation_sum"][index],
                 "precipitation_probability": daily["precipitation_probability_max"][index],
                 "wind_speed_max": daily["wind_speed_10m_max"][index],
-                "wind_direction": daily["wind_direction_10m_dominant"][index],
+                "wind_direction_max": daily["wind_direction_10m_dominant"][index],
             }
         )
 
@@ -156,6 +158,31 @@ def radar_precipitation(
         raise HTTPException(
             status_code=502,
             detail="Unable to retrieve radar precipitation.",
+        ) from error
+
+
+@app.get("/api/radar/route")
+def radar_route(
+    origin_latitude: float = Query(..., ge=-90, le=90),
+    origin_longitude: float = Query(..., ge=-180, le=180),
+    destination_latitude: float = Query(..., ge=-90, le=90),
+    destination_longitude: float = Query(..., ge=-180, le=180),
+    product: str = Query(default="1hr"),
+    sample_count: int = Query(default=12, ge=2, le=24),
+):
+    try:
+        return route_radar_service.get_route_radar(
+            origin=(origin_latitude, origin_longitude),
+            destination=(destination_latitude, destination_longitude),
+            sample_count=sample_count,
+            product=product,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve route radar precipitation.",
         ) from error
 
 
