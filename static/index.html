@@ -209,13 +209,9 @@ function renderRecent(){const el=document.getElementById("recent");el.innerHTML=
 function toggleDay(index,wrapper){if(expandedDay===index){expandedDay=null;renderForecast();return;}expandedDay=index;const day=currentForecast.daily[index],hours=currentForecast.hourly.filter(h=>h.time.slice(0,10)===day.date),detail=document.createElement("div");detail.className="daily-expanded";detail.innerHTML="<strong>"+formatDay(day.date)+"</strong> · Sunrise "+formatDateTime(day.sunrise)+" · Sunset "+formatDateTime(day.sunset)+" · Precipitation "+day.precipitation+" mm · "+hours.length+" hourly observations";wrapper.children[index].after(detail);}
 async function searchLocations(){const input=document.getElementById("search-input"),results=document.getElementById("search-results"),query=input.value.trim();if(query.length<2)return;results.style.display="block";results.innerHTML="<div class='search-result'>Searching...</div>";try{const r=await fetch("/api/geocode/search?q="+encodeURIComponent(query));if(!r.ok)throw 0;const places=await r.json();results.innerHTML="";if(!places.length){results.innerHTML="<div class='search-result'>No locations found.</div>";return;}places.forEach(place=>{const item=document.createElement("div");item.className="search-result";item.textContent=place.display_name;item.addEventListener("click",()=>{const lat=Number(place.lat),lon=Number(place.lon),name=place.display_name.split(",").slice(0,2).join(",");map.flyTo([lat,lon],10);marker.setLatLng([lat,lon]);results.style.display="none";loadForecast(lat,lon,name);});results.appendChild(item);});}catch{results.innerHTML="<div class='search-result'>Search unavailable.</div>";}}
 const RADAR_TILE_BASE="https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/";
-const RADAR_WMS_BASE="https://mesonet.agron.iastate.edu/cgi-bin/wms/hrrr/refp.cgi";
-const radarState={sequence:[],playing:false,playToken:0,currentIndex:23,currentLayer:0,layers:[null,null],layerFrames:[null,null],animationId:null};
+const RADAR_WMS_URL="https://mesonet.agron.iastate.edu/cgi-bin/wms/hrrr/refp.cgi";
+const radarState={sequence:[],playing:false,playToken:0,currentIndex:23,currentLayer:0,layers:[null,null],layerFrames:[null,null],animationId:null,loadToken:0};
 function radarTimestamp(iso){
-const d=new Date(iso);
-return d.getUTCFullYear().toString()+String(d.getUTCMonth()+1).padStart(2,"0")+String(d.getUTCDate()).padStart(2,"0")+String(d.getUTCHours()).padStart(2,"0")+String(d.getUTCMinutes()).padStart(2,"0");
-}
-function radarModelInit(iso){
 const d=new Date(iso);
 return d.getUTCFullYear().toString()+String(d.getUTCMonth()+1).padStart(2,"0")+String(d.getUTCDate()).padStart(2,"0")+String(d.getUTCHours()).padStart(2,"0")+String(d.getUTCMinutes()).padStart(2,"0");
 }
@@ -237,28 +233,18 @@ try{
 const response=await fetch("/api/radar/future");
 if(response.ok){
 const data=await response.json();
-const modelInit=radarModelInit(data.model_init_utc);
 future=data.frames.map(frame=>({
 kind:"forecast",
 time:frame.valid_at,
 label:formatRadarTime(frame.valid_at),
-url:RADAR_TILE_BASE+"hrrr::"+frame.layer+"-"+modelInit+"/{z}/{x}/{y}.png",
 wmsLayer:"refp_"+String(frame.forecast_minute).padStart(4,"0")
 }));
 }
 }catch{}
-if(future.length<24){
-future=[];
-for(let i=1;i<=24;i++){
-const time=new Date(Date.now()+i*15*60*1000);
-const minute=String(i*15).padStart(4,"0");
-future.push({
-kind:"forecast",
-time:time.toISOString(),
-label:formatRadarTime(time),
-url:RADAR_TILE_BASE+"hrrr::REFP-F"+minute+"-0/{z}/{x}/{y}.png",
-wmsLayer:"refp_"+minute
-});
+if(!future.length){
+for(let minute=15;minute<=360;minute+=15){
+const time=new Date(Date.now()+minute*60*1000);
+future.push({kind:"forecast",time:time.toISOString(),label:formatRadarTime(time),wmsLayer:"refp_"+String(minute).padStart(4,"0")});
 }
 }
 radarState.sequence=[...observed,...future];
@@ -269,31 +255,30 @@ function setRadarTimeLabel(){
 const frame=radarState.sequence[radarState.currentIndex];
 document.getElementById("radar-time").textContent=frame?(frame.kind==="observed"?"Observed · ":"Forecast · ")+frame.label:"Radar";
 }
-function createRadarLayer(frame){
-if(frame.kind==="forecast"){
-return L.tileLayer(frame.url,{
-tms:true,
+function createObservedRadarLayer(frame){
+return L.tileLayer(frame.url,{opacity:0,zIndex:450,tileSize:256,updateWhenIdle:true,keepBuffer:1,attribution:"Radar: NOAA MRMS / IEM"}).addTo(map);
+}
+function createForecastRadarLayer(frame){
+return L.tileLayer.wms(RADAR_WMS_URL,{
+layers:frame.wmsLayer,
+format:"image/png",
+transparent:true,
+version:"1.1.1",
 opacity:0,
-zIndex:450,
+zIndex:451,
 tileSize:256,
 updateWhenIdle:true,
 keepBuffer:1,
-attribution:"Radar: NOAA MRMS / HRRR via IEM"
+attribution:"Forecast radar: NOAA HRRR / IEM"
 }).addTo(map);
 }
-return L.tileLayer(frame.url,{
-opacity:0,
-zIndex:450,
-tileSize:256,
-updateWhenIdle:true,
-keepBuffer:1,
-attribution:"Radar: NOAA MRMS / HRRR via IEM"
-}).addTo(map);
+function createRadarLayer(frame){
+return frame.kind==="forecast"?createForecastRadarLayer(frame):createObservedRadarLayer(frame);
 }
 function ensureRadarLayers(){
 if(radarState.layers[0])return;
-const initialFrame=radarState.sequence[radarState.currentIndex]||radarState.sequence[0];
-radarState.layers=[createRadarLayer(initialFrame),createRadarLayer(initialFrame)];
+const initial=radarState.sequence[radarState.currentIndex];
+radarState.layers=[createRadarLayer(initial),createRadarLayer(initial)];
 radarState.layerFrames=[null,null];
 }
 function waitForRadarLayer(layer){
@@ -303,10 +288,10 @@ const finish=()=>{
 if(done)return;
 done=true;
 layer.off("load",finish);
-requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>resolve(true),80)));
+requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>resolve(true),60)));
 };
 layer.once("load",finish);
-setTimeout(()=>{if(!done){done=true;layer.off("load",finish);resolve(true);}},8000);
+setTimeout(()=>{if(!done){done=true;layer.off("load",finish);resolve(true);}},7000);
 });
 }
 async function prepareRadarLayer(layerIndex,frameIndex){
@@ -320,7 +305,6 @@ radarState.layers[layerIndex]=null;
 radarState.layerFrames[layerIndex]=null;
 }
 const layer=createRadarLayer(frame);
-layer.setOpacity(0);
 radarState.layers[layerIndex]=layer;
 const ready=await waitForRadarLayer(layer);
 if(ready)radarState.layerFrames[layerIndex]=frameIndex;
@@ -328,19 +312,17 @@ return ready;
 }
 function animateRadarTransition(fromLayer,toLayer,targetOpacity){
 if(radarState.animationId)cancelAnimationFrame(radarState.animationId);
-const start=performance.now(),duration=500;
-toLayer.setOpacity(0);
-if(fromLayer)fromLayer.setOpacity(targetOpacity);
+const start=performance.now(),duration=420;
 return new Promise(resolve=>{
 function step(now){
 const progress=Math.min(1,(now-start)/duration);
 const eased=1-Math.pow(1-progress,3);
+if(fromLayer)fromLayer.setOpacity(targetOpacity*(1-eased));
 toLayer.setOpacity(targetOpacity*eased);
-if(progress<1){
-radarState.animationId=requestAnimationFrame(step);
-}else{
-toLayer.setOpacity(targetOpacity);
+if(progress<1)radarState.animationId=requestAnimationFrame(step);
+else{
 if(fromLayer)fromLayer.setOpacity(0);
+toLayer.setOpacity(targetOpacity);
 radarState.animationId=null;
 resolve();
 }
@@ -357,12 +339,9 @@ const fromLayer=radarState.layers[radarState.currentLayer];
 radarState.currentIndex=clamped;
 document.getElementById("radar-slider").value=clamped;
 setRadarTimeLabel();
-if(radarState.animationId)cancelAnimationFrame(radarState.animationId);
 const targetReady=await prepareRadarLayer(targetLayerIndex,clamped);
 if(!targetReady)return;
 const targetLayer=radarState.layers[targetLayerIndex];
-targetLayer.setZIndex(451);
-if(fromLayer)fromLayer.setZIndex(450);
 if(animate&&fromLayer&&clamped!==fromIndex){
 await animateRadarTransition(fromLayer,targetLayer,radarOpacity);
 }else{
@@ -371,7 +350,7 @@ targetLayer.setOpacity(radarOpacity);
 }
 radarState.currentLayer=targetLayerIndex;
 radarState.layerFrames[targetLayerIndex]=clamped;
-const preloadIndex=(clamped+1)%radarState.sequence.length;
+const preloadIndex=Math.min(clamped+1,radarState.sequence.length-1);
 const preloadLayerIndex=1-targetLayerIndex;
 if(preloadIndex!==clamped)prepareRadarLayer(preloadLayerIndex,preloadIndex).catch(()=>{});
 }
@@ -387,7 +366,7 @@ let index=radarState.currentIndex;
 while(radarState.playing&&token===radarState.playToken){
 index=(index+1)%radarState.sequence.length;
 await showRadarFrame(index,true);
-await new Promise(resolve=>setTimeout(resolve,220));
+await new Promise(resolve=>setTimeout(resolve,100));
 }
 }
 function stopRadarPlayback(){
