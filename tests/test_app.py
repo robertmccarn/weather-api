@@ -158,3 +158,32 @@ def test_route_weather_rejects_invalid_coordinates():
     )
 
     assert response.status_code == 422
+
+
+def test_geocode_search_endpoint():
+    with patch(
+        "app.geocoding_service.search",
+        return_value=[{"display_name": "Spring, Texas"}],
+    ):
+        response = client.get("/api/geocode/search?q=Spring%2C%20TX")
+
+    assert response.status_code == 200
+    assert response.json()[0]["display_name"] == "Spring, Texas"
+
+
+def test_geocode_reverse_endpoint():
+    with patch(
+        "app.geocoding_service.reverse",
+        return_value={"display_name": "Spring, Texas"},
+    ):
+        response = client.get(
+            "/api/geocode/reverse?latitude=30.0799&longitude=-95.4172"
+        )
+
+    assert response.status_code == 200
+    assert response.json()["display_name"] == "Spring, Texas"
+
+
+def test_geocode_search_rejects_short_queries():
+    response = client.get("/api/geocode/search?q=x")
+    assert response.status_code == 422
