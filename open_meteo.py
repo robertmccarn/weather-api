@@ -1,10 +1,16 @@
+import logging
 import time
 
 import requests
 
+from config import API_URL
+
+
+logger = logging.getLogger(__name__)
+
 
 class OpenMeteoClient:
-    API_URL = "https://api.open-meteo.com/v1/forecast"
+    API_URL = API_URL
     MAX_RETRIES = 3
     RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
 
@@ -29,10 +35,11 @@ class OpenMeteoClient:
 
                     wait_time = 2**attempt
 
-                    print(
-                        f"Request failed with HTTP "
-                        f"{response.status_code}. "
-                        f"Retrying in {wait_time} seconds..."
+                    logger.warning(
+                        "Request failed with HTTP %s. "
+                        "Retrying in %s seconds...",
+                        response.status_code,
+                        wait_time,
                     )
 
                     time.sleep(wait_time)
@@ -52,7 +59,10 @@ class OpenMeteoClient:
 
                 wait_time = 2**attempt
 
-                print(f"Request timed out. Retrying in {wait_time} seconds...")
+                logger.warning(
+                    "Request timed out. Retrying in %s seconds...",
+                    wait_time,
+                )
 
                 time.sleep(wait_time)
 
@@ -62,7 +72,10 @@ class OpenMeteoClient:
 
                 wait_time = 2**attempt
 
-                print(f"Connection failed. Retrying in {wait_time} seconds...")
+                logger.warning(
+                    "Connection failed. Retrying in %s seconds...",
+                    wait_time,
+                )
 
                 time.sleep(wait_time)
 
@@ -79,4 +92,6 @@ class OpenMeteoClient:
 
         for field in required_fields:
             if field not in data["hourly"]:
-                raise ValueError(f"API response is missing hourly field: {field}")
+                raise ValueError(
+                    f"API response is missing hourly field: {field}"
+                )
