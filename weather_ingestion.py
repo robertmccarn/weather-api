@@ -1,3 +1,12 @@
+import logging
+from datetime import datetime, timedelta
+
+from config import REFRESH_HOURS
+
+
+logger = logging.getLogger(__name__)
+
+
 class WeatherIngestion:
     def __init__(self, database, client, locations):
         self.database = database
@@ -5,16 +14,44 @@ class WeatherIngestion:
         self.locations = locations
 
     def run(self):
+        logger.info("Starting weather ingestion")
+
         for location in self.locations:
+            try:
+                self._process_location(location)
+            except Exception:
+                logger.exception(
+                    "Failed to process %s",
+                    location["name"],
+                )
+
+        logger.info("Weather ingestion completed")
+
+    def _process_location(self, location):
+        try:
             self.database.add_location(
                 location["name"],
                 location["latitude"],
                 location["longitude"],
             )
 
-            location_id = self.database.get_location_id(location["name"])
+            location_id = self.database.get_location_id(
+                location["name"]
+            )
 
-            last_loaded_timestamp = self.database.get_watermark(location_id)
+            last_loaded_timestamp = self.database.get_watermark(
+                location_id
+            )
+
+            refresh_cutoff = None
+
+            if last_loaded_timestamp is not None:
+                last_loaded = datetime.fromisoformat(
+                    last_loaded_timestamp
+                )
+                refresh_cutoff = (
+                    last_loaded - timedelta(hours=REFRESH_HOURS)
+                )
 
             data = self.client.get_forecast(
                 latitude=location["latitude"],
@@ -36,8 +73,10 @@ class WeatherIngestion:
                 precipitation,
                 humidity,
             ):
-                if last_loaded_timestamp is not None:
-                    if time <= last_loaded_timestamp:
+                if refresh_cutoff is not None:
+                    current_time = datetime.fromisoformat(time)
+
+                    if current_time < refresh_cutoff:
                         continue
 
                 self.database.save_weather(
@@ -52,4 +91,12 @@ class WeatherIngestion:
 
             self.database.commit()
 
-            print(f"{location['name']}: {records_processed} records processed")
+            logger.info(
+                "%s: %d records processed",
+                location["name"],
+                records_processed,
+            )
+
+        except Exception:
+            self.database.rollback()
+            raise
