@@ -166,7 +166,7 @@ document.getElementById("status").textContent="Forecast · "+(currentForecast.ti
 document.getElementById("current-temp").textContent=Math.round(currentObservation.temperature_f)+"°";
 const apparent=currentObservation.apparent_temperature_f??current.apparent_temperature;
 document.getElementById("feels-like").textContent=Math.round(apparent)+"°";
-document.getElementById("current-condition").textContent=currentObservation.text_description||info[1]+" "+info[0];
+document.getElementById("current-condition").textContent=info[1]+" "+(currentObservation.text_description||info[0]);
 const observedAt=currentObservation.timestamp?new Date(currentObservation.timestamp):null;
 const age=observedAt?Math.max(0,Math.round((Date.now()-observedAt.getTime())/60000)):null;
 document.getElementById("data-source").innerHTML="<span class='data-source-dot'></span><span><strong>NWS observed</strong> · "+currentObservation.station_name+(age!=null?" · "+age+" min ago":"")+"</span>";
