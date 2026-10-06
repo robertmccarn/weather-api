@@ -68,12 +68,16 @@ class RouteWeatherService:
         if not forecasts:
             return None
 
-        return min(
-            forecasts,
-            key=lambda point: abs(
-                RouteWeatherService._parse_timestamp(point.timestamp) - target
-            ),
-        )
+        def distance(point):
+            forecast_time = RouteWeatherService._parse_timestamp(point.timestamp)
+            comparison_target = target
+            if forecast_time.tzinfo is None and target.tzinfo is not None:
+                comparison_target = target.replace(tzinfo=None)
+            elif forecast_time.tzinfo is not None and target.tzinfo is None:
+                comparison_target = target.replace(tzinfo=forecast_time.tzinfo)
+            return abs(forecast_time - comparison_target)
+
+        return min(forecasts, key=distance)
 
     @staticmethod
     def _parse_timestamp(timestamp: str) -> datetime:
